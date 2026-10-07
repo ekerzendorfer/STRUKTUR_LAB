@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.1.2";
+  const VERSION = "0.1.3";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -21,6 +21,7 @@
   let selectedClass=null;
   let selectedStructure=null;
   let referenceUnlocked=false;
+  let referenceMethod="ir";
   const el={};
 
   document.addEventListener("DOMContentLoaded", init);
@@ -44,7 +45,7 @@
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
       "nmrRegionsToggle","nmrNote","classGrid","classFeedback","structureStage","structureGrid","hypothesisNote",
       "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","referenceStage",
-      "referenceBtn","referenceFeedback","journalView","progressText","copyJournalBtn","resetCaseBtn"]
+      "referenceBtn","referenceFeedback","referenceCompare","referenceCanvas","referenceLegend","journalView","progressText","copyJournalBtn","resetCaseBtn"]
       .forEach(id=>el[id]=document.getElementById(id));
   }
 
@@ -73,6 +74,10 @@
     el.submitHypothesisBtn.addEventListener("click",submitHypothesis);
     el.checkNameBtn.addEventListener("click",checkName);
     el.referenceBtn.addEventListener("click",unlockReference);
+    document.querySelectorAll("[data-reference-method]").forEach(b=>b.addEventListener("click",()=>{
+      referenceMethod=b.dataset.referenceMethod;
+      renderReferenceComparison();
+    }));
     el.copyJournalBtn.addEventListener("click",copyJournal);
     el.resetCaseBtn.addEventListener("click",()=>resetCase(false));
   }
@@ -188,13 +193,26 @@
     else{el.nameFeedback.className="feedback warn";el.nameFeedback.textContent="Der Name passt noch nicht zur ausgewählten Struktur. Prüfe Stoffklasse und systematische bzw. gebräuchliche Benennung.";}
   }
 
-  function unlockReference(){referenceUnlocked=true;state.referenceUnlocked=true;save();el.referenceFeedback.className="feedback good";el.referenceFeedback.textContent="Referenzvergleich freigeschaltet: Die ausgewählte Referenz stimmt in diesem Prototyp mit der kuratierten Zielstruktur überein. Die vollständige grafische Spektrenüberlagerung folgt im nächsten Feinschliff. Im Analytik-Hub wäre die Identität damit noch nicht endgültig bestätigt – der Abschluss erfolgt später über einen gezielten GC-Standard.";}
+  function unlockReference(){
+    referenceUnlocked=true;
+    state.referenceUnlocked=true;
+    save();
+    el.referenceCompare.hidden=false;
+    el.referenceFeedback.className="feedback good";
+    el.referenceFeedback.textContent="Referenzvergleich geöffnet. Die gestrichelte Referenz darf erst jetzt mit dem unbekannten Spektrum verglichen werden. Im gekoppelten Analytik-Fall wäre die Identität damit noch nicht endgültig bestätigt – der Abschluss erfolgt später über einen gezielten GC-Standard.";
+    renderReferenceComparison();
+  }
 
   function renderHypothesisState(){
     if(selectedClass===target().primary_class)el.structureStage.classList.add("unlocked");
     if(selectedStructure===target().id)el.nameStage.classList.add("unlocked");
     if(state.nameVerified)el.referenceStage.classList.add("unlocked");
-    if(referenceUnlocked)el.referenceFeedback.textContent="Referenzvergleich wurde bereits freigeschaltet.";
+    if(referenceUnlocked){
+      el.referenceCompare.hidden=false;
+      el.referenceFeedback.className="feedback good";
+      el.referenceFeedback.textContent="Referenzvergleich ist freigeschaltet. Vergleiche MS, IR und ¹H-NMR mit der bestätigten Referenz.";
+      requestAnimationFrame(renderReferenceComparison);
+    }
   }
 
   function canvasPoint(evt,canvas){const r=canvas.getBoundingClientRect();return {x:(evt.clientX-r.left)*canvas.width/r.width,y:(evt.clientY-r.top)*canvas.height/r.height};}
@@ -213,7 +231,7 @@
   function irTransmissionAt(cm,bands){let drop=0;for(const b of bands){const sigma=(b.width||50)/2.355;drop+=b.strength*Math.exp(-0.5*Math.pow((cm-b.cm1)/sigma,2));}return Math.max(.04,Math.min(.98,.96-drop*.78));}
   function drawIr(){
     const canvas=el.irCanvas,ctx=canvas.getContext("2d"),bands=target().ir?.bands||[];baseCanvas(ctx,canvas);const p={l:65,r:25,t:25,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
-    if(el.irGroupsToggle.checked){const areas=[[3600,3200,"O–H"],[3300,2500,"COOH-OH"],[1800,1650,"C=O"],[1300,1000,"C–O"]];ctx.font="12px system-ui";for(const [hi,lo,label] of areas){const x1=p.l+w*(4000-hi)/3500,x2=p.l+w*(4000-lo)/3500;ctx.fillStyle="rgba(96,165,250,.10)";ctx.fillRect(x1,p.t,x2-x1,h);ctx.fillStyle="#88aee0";ctx.fillText(label,x1+4,p.t+16);}}
+    if(el.irGroupsToggle.checked){const areas=[[3600,3200,"O–H"],[3300,2500,"COOH-OH"],[1800,1650,"C=O"],[1300,1000,"C–O"]];ctx.font="12px system-ui";for(const [hi,lo,label] of areas){const x1=p.l+w*(4000-hi)/3500,x2=p.l+w*(4000-lo)/3500;ctx.fillStyle="rgba(96,165,250,.10)";ctx.fillRect(x1,p.t,x2-x1,h);ctx.fillStyle="#88aee0";ctx.textBaseline="top";ctx.fillText(label,x1+4,p.t+2);ctx.textBaseline="alphabetic";}}
     if(el.irFingerprintToggle.checked){const x=p.l+w*(4000-1500)/3500;ctx.fillStyle="rgba(251,191,36,.08)";ctx.fillRect(x,p.t,p.l+w-x,h);ctx.fillStyle="#c8a951";ctx.fillText("Fingerprintbereich",x+8,p.t+32);}
     gridAxes(ctx,p,w,h,"Wellenzahl / cm⁻¹","Transmission",4000,500,0,1,true);
     ctx.strokeStyle="#59d4df";ctx.lineWidth=2.2;ctx.beginPath();const n=900;for(let i=0;i<n;i++){const cm=4000-3500*i/(n-1),tr=irTransmissionAt(cm,bands),x=p.l+w*i/(n-1),y=p.t+h-h*tr;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();canvas._plot={type:"ir",p,w,h};
@@ -238,6 +256,84 @@
     ctx.strokeStyle="#2b425f";ctx.fillStyle="#8ea4bd";ctx.font="12px system-ui";ctx.textAlign="center";
     for(let i=0;i<=8;i++){const x=p.l+w*i/8;ctx.beginPath();ctx.moveTo(x,p.t);ctx.lineTo(x,p.t+h);ctx.stroke();const v=xStart+(xEnd-xStart)*i/8;ctx.fillText(Math.round(v*10)/10,x,p.t+h+20);}for(let i=0;i<=5;i++){const y=p.t+h-h*i/5;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(p.l+w,y);ctx.stroke();}
     ctx.strokeStyle="#b8c8da";ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(p.l,p.t);ctx.lineTo(p.l,p.t+h);ctx.lineTo(p.l+w,p.t+h);ctx.stroke();ctx.fillStyle="#a9bad0";ctx.fillText(xLabel,p.l+w/2,p.t+h+42);ctx.save();ctx.translate(17,p.t+h/2);ctx.rotate(-Math.PI/2);ctx.fillText(yLabel,0,0);ctx.restore();ctx.textAlign="left";
+  }
+
+  function referenceSubstance(){
+    return db.substances.find(s=>s.id===selectedStructure) || target();
+  }
+
+  function drawReferenceMs(ctx,canvas,unknown,reference){
+    baseCanvas(ctx,canvas);
+    const all=[...(unknown||[]),...(reference||[])];
+    const p={l:65,r:25,t:30,b:52},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
+    const maxMz=Math.max(100,...all.map(x=>x.mz+8));
+    gridAxes(ctx,p,w,h,"m/z","rel. Intensität / %",0,maxMz,0,100,false);
+
+    ctx.strokeStyle="#5de0ed";ctx.lineWidth=4;ctx.globalAlpha=.68;ctx.setLineDash([]);
+    (unknown||[]).forEach(pk=>{const x=p.l+w*pk.mz/maxMz,y=p.t+h-h*pk.intensity/100;ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,y);ctx.stroke();});
+
+    ctx.strokeStyle="#f5c66a";ctx.lineWidth=2.2;ctx.globalAlpha=1;ctx.setLineDash([7,5]);
+    (reference||[]).forEach(pk=>{const x=p.l+w*pk.mz/maxMz,y=p.t+h-h*pk.intensity/100;ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,y);ctx.stroke();});
+    ctx.setLineDash([]);
+  }
+
+  function drawReferenceIr(ctx,canvas,unknown,reference){
+    baseCanvas(ctx,canvas);
+    const p={l:65,r:25,t:30,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
+    gridAxes(ctx,p,w,h,"Wellenzahl / cm⁻¹","Transmission",4000,500,0,1,true);
+    const n=900;
+    function trace(bands,stroke,width,dash,alpha){
+      ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.globalAlpha=alpha;ctx.setLineDash(dash);ctx.beginPath();
+      for(let i=0;i<n;i++){
+        const cm=4000-3500*i/(n-1),tr=irTransmissionAt(cm,bands||[]),x=p.l+w*i/(n-1),y=p.t+h-h*tr;
+        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    trace(unknown,"#59d4df",4,[],.68);
+    trace(reference,"#f5c66a",2.2,[9,6],1);
+    ctx.globalAlpha=1;ctx.setLineDash([]);
+  }
+
+  function drawReferenceNmr(ctx,canvas,unknown,reference){
+    baseCanvas(ctx,canvas);
+    const p={l:65,r:25,t:30,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
+    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",12,0,0,1,true);
+
+    function trace(signals,stroke,width,dash,alpha){
+      const maxInt=Math.max(1,...(signals||[]).map(s=>s.integration));
+      ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.globalAlpha=alpha;ctx.setLineDash(dash);
+      (signals||[]).forEach(sig=>{
+        const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(12-sig.delta)/12,rel=sig.integration/maxInt;
+        lines.forEach((amp,i)=>{
+          const x=baseX-total/2+i*spacing;
+          let peakHeight=h*.82*rel*(amp/Math.max(...lines));
+          if(sig.exchangeable) peakHeight=Math.max(peakHeight,h*.28);
+          ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,p.t+h-peakHeight);ctx.stroke();
+        });
+      });
+    }
+    trace(unknown,"#6ae2ec",4,[],.68);
+    trace(reference,"#f5c66a",2.2,[7,5],1);
+    ctx.globalAlpha=1;ctx.setLineDash([]);
+  }
+
+  function renderReferenceComparison(){
+    if(!referenceUnlocked || !el.referenceCanvas) return;
+    document.querySelectorAll("[data-reference-method]").forEach(b=>b.classList.toggle("active",b.dataset.referenceMethod===referenceMethod));
+    const ref=referenceSubstance(),unknown=target();
+    const ctx=el.referenceCanvas.getContext("2d");
+
+    if(referenceMethod==="ms"){
+      drawReferenceMs(ctx,el.referenceCanvas,unknown.ms?.peaks||[],ref.ms?.peaks||[]);
+      el.referenceLegend.textContent="MS: durchgezogen = unbekannt · gestrichelt = Referenz";
+    }else if(referenceMethod==="nmr"){
+      drawReferenceNmr(ctx,el.referenceCanvas,unknown.h1_nmr?.signals||[],ref.h1_nmr?.signals||[]);
+      el.referenceLegend.textContent="¹H-NMR: durchgezogen = unbekannt · gestrichelt = Referenz";
+    }else{
+      drawReferenceIr(ctx,el.referenceCanvas,unknown.ir?.bands||[],ref.ir?.bands||[]);
+      el.referenceLegend.textContent="IR: durchgezogen = unbekannt · gestrichelt = Referenz";
+    }
   }
 
   async function copyJournal(){const text=journalText();try{await navigator.clipboard.writeText(text);el.copyJournalBtn.textContent="Kopiert ✓";setTimeout(()=>el.copyJournalBtn.textContent="Protokoll kopieren",1200);}catch(_){alert(text);}}
