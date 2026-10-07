@@ -22,6 +22,8 @@
   let selectedStructure=null;
   let referenceUnlocked=false;
   let referenceMethod="ir";
+  let referenceCandidateId=null;
+  let activeSignalId=null;
   const el={};
 
   document.addEventListener("DOMContentLoaded", init);
@@ -45,7 +47,7 @@
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
       "nmrRegionsToggle","nmrNote","classGrid","classFeedback","structureStage","structureGrid","hypothesisNote",
       "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","referenceStage",
-      "referenceBtn","referenceFeedback","referenceCompare","referenceCanvas","referenceLegend","journalView","progressText","copyJournalBtn","resetCaseBtn"]
+      "referenceBtn","referenceFeedback","referenceCompare","referenceCandidateSelect","referenceCanvas","referenceLegend","protonAssignmentStage","protonSignalList","protonStructure","protonFeedback","journalView","progressText","copyJournalBtn","resetCaseBtn"]
       .forEach(id=>el[id]=document.getElementById(id));
   }
 
@@ -78,6 +80,23 @@
       referenceMethod=b.dataset.referenceMethod;
       renderReferenceComparison();
     }));
+    el.referenceCandidateSelect.addEventListener("change",()=>{
+      referenceCandidateId=el.referenceCandidateSelect.value;
+      state.referenceCandidateId=referenceCandidateId;
+      save();
+      renderReferenceComparison();
+    });
+    el.protonSignalList.addEventListener("click",e=>{
+      const b=e.target.closest("[data-signal-id]");
+      if(!b) return;
+      activeSignalId=b.dataset.signalId;
+      renderProtonAssignment();
+    });
+    el.protonStructure.addEventListener("click",e=>{
+      const b=e.target.closest("[data-proton-group]");
+      if(!b) return;
+      assignProtonGroup(b.dataset.protonGroup);
+    });
     el.copyJournalBtn.addEventListener("click",copyJournal);
     el.resetCaseBtn.addEventListener("click",()=>resetCase(false));
   }
@@ -86,16 +105,16 @@
     const wanted={caseId:el.caseSelect.value,mode:el.modeSelect.value};
     try{
       const old=JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if(old&&old.caseId===wanted.caseId&&old.mode===wanted.mode){state=old;currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;return;}
+      if(old&&old.caseId===wanted.caseId&&old.mode===wanted.mode){state=old;currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;return;}
     }catch(_){ }
     state=freshState(wanted.caseId,wanted.mode);
   }
 
-  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false};}
-  function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{}};}
+  function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
-    state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;
+    state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;referenceCandidateId=null;activeSignalId=null;
     save();renderAll(); if(!changed) window.scrollTo({top:0,behavior:"smooth"});
   }
 
@@ -193,13 +212,38 @@
     else{el.nameFeedback.className="feedback warn";el.nameFeedback.textContent="Der Name passt noch nicht zur ausgewählten Struktur. Prüfe Stoffklasse und systematische bzw. gebräuchliche Benennung.";}
   }
 
+  function availableReferenceCandidates(){
+    return currentCase().candidate_ids.map(id=>sub(id)).filter(Boolean);
+  }
+
+  function ensureReferenceCandidate(){
+    const candidates=availableReferenceCandidates();
+    if(referenceCandidateId && candidates.some(s=>s.id===referenceCandidateId)) return;
+    const alternative=candidates.find(s=>s.id!==target().id && s.ms?.peaks?.length && s.ir?.bands?.length && s.h1_nmr?.signals?.length);
+    referenceCandidateId=(alternative||candidates.find(s=>s.id===target().id)||candidates[0])?.id||target().id;
+    state.referenceCandidateId=referenceCandidateId;
+  }
+
+  function renderReferenceCandidateOptions(){
+    ensureReferenceCandidate();
+    const candidates=availableReferenceCandidates();
+    el.referenceCandidateSelect.innerHTML=candidates.map(s=>{
+      const ready=!!(s.ms?.peaks?.length && s.ir?.bands?.length && s.h1_nmr?.signals?.length);
+      const suffix=s.id===target().id?" · eigene Hypothese":"";
+      return `<option value="${s.id}" ${ready?"":"disabled"}>${s.name_de}${suffix}${ready?"":" · Spektren folgen"}</option>`;
+    }).join("");
+    el.referenceCandidateSelect.value=referenceCandidateId;
+  }
+
   function unlockReference(){
     referenceUnlocked=true;
     state.referenceUnlocked=true;
+    ensureReferenceCandidate();
     save();
     el.referenceCompare.hidden=false;
     el.referenceFeedback.className="feedback good";
-    el.referenceFeedback.textContent="Referenzvergleich geöffnet. Die gestrichelte Referenz darf erst jetzt mit dem unbekannten Spektrum verglichen werden. Im gekoppelten Analytik-Fall wäre die Identität damit noch nicht endgültig bestätigt – der Abschluss erfolgt später über einen gezielten GC-Standard.";
+    el.referenceFeedback.textContent="Kandidatenvergleich geöffnet. Deine Hypothese bleibt festgelegt; jetzt kannst du rückblickend prüfen, warum andere Kandidaten schlechter zu den Spektren passen.";
+    renderReferenceCandidateOptions();
     renderReferenceComparison();
   }
 
@@ -211,16 +255,19 @@
     el.referenceStage.classList.toggle("unlocked",!!state.nameVerified);
     el.referenceCompare.hidden=!referenceUnlocked;
 
+    el.protonAssignmentStage.classList.toggle("unlocked",!!state.nameVerified);
     if(referenceUnlocked){
+      renderReferenceCandidateOptions();
       el.referenceFeedback.className="feedback good";
-      el.referenceFeedback.textContent="Referenzvergleich ist freigeschaltet. Vergleiche MS, IR und ¹H-NMR mit der bestätigten Referenz.";
+      el.referenceFeedback.textContent="Kandidatenvergleich ist freigeschaltet. Deine Lösung steht fest; vergleiche nun gezielt mit Alternativen.";
       requestAnimationFrame(renderReferenceComparison);
     }else{
       el.referenceFeedback.className="feedback neutral";
       el.referenceFeedback.textContent=state.nameVerified
-        ? "Die Namenszuordnung ist bestätigt. Du kannst jetzt den Referenzvergleich öffnen."
+        ? "Die Namenszuordnung ist bestätigt. Du kannst jetzt den Kandidatenvergleich öffnen."
         : "";
     }
+    if(state.nameVerified) requestAnimationFrame(renderProtonAssignment);
   }
 
   function canvasPoint(evt,canvas){const r=canvas.getBoundingClientRect();return {x:(evt.clientX-r.left)*canvas.width/r.width,y:(evt.clientY-r.top)*canvas.height/r.height};}
@@ -267,7 +314,7 @@
   }
 
   function referenceSubstance(){
-    return db.substances.find(s=>s.id===selectedStructure) || target();
+    return sub(referenceCandidateId) || target();
   }
 
   function drawReferenceMs(ctx,canvas,unknown,reference){
@@ -334,13 +381,80 @@
 
     if(referenceMethod==="ms"){
       drawReferenceMs(ctx,el.referenceCanvas,unknown.ms?.peaks||[],ref.ms?.peaks||[]);
-      el.referenceLegend.textContent="MS: durchgezogen = unbekannt · gestrichelt = Referenz";
+      el.referenceLegend.textContent=`MS: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
     }else if(referenceMethod==="nmr"){
       drawReferenceNmr(ctx,el.referenceCanvas,unknown.h1_nmr?.signals||[],ref.h1_nmr?.signals||[]);
-      el.referenceLegend.textContent="¹H-NMR: durchgezogen = unbekannt · gestrichelt = Referenz";
+      el.referenceLegend.textContent=`¹H-NMR: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
     }else{
       drawReferenceIr(ctx,el.referenceCanvas,unknown.ir?.bands||[],ref.ir?.bands||[]);
-      el.referenceLegend.textContent="IR: durchgezogen = unbekannt · gestrichelt = Referenz";
+      el.referenceLegend.textContent=`IR: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
+    }
+  }
+
+  function protonGroups(){return target().h1_nmr?.proton_groups||[];}
+
+  function protonViewBox(){
+    const m=(target().structure_svg||"").match(/viewBox=['"]([^'"]+)['"]/);
+    const parts=(m?m[1]:"0 0 300 100").trim().split(/\s+/).map(Number);
+    return {x:parts[0]||0,y:parts[1]||0,w:parts[2]||300,h:parts[3]||100};
+  }
+
+  function renderProtonAssignment(){
+    if(!state.nameVerified || !el.protonAssignmentStage) return;
+    const signals=target().h1_nmr?.signals||[],groups=protonGroups();
+    if(!groups.length){
+      el.protonFeedback.className="feedback neutral";
+      el.protonFeedback.textContent="Für diesen Stoff ist die Protonengruppen-Zuordnung noch nicht kuratiert.";
+      return;
+    }
+    if(!state.protonAssignments) state.protonAssignments={};
+
+    el.protonSignalList.innerHTML=signals.map((sig,i)=>{
+      const done=state.protonAssignments[sig.id]===sig.id;
+      const active=activeSignalId===sig.id;
+      return `<button type="button" class="proton-signal ${done?"done":""} ${active?"active":""}" data-signal-id="${sig.id}"><strong>Signal ${i+1}</strong><span>δ ${sig.delta.toLocaleString("de-AT")} ppm · ${sig.integration} H · ${sig.multiplicity}</span></button>`;
+    }).join("");
+
+    const vb=protonViewBox();
+    let html=`<div class="proton-svg">${target().structure_svg}</div>`;
+    for(const group of groups){
+      for(const hotspot of group.hotspots||[]){
+        const left=((hotspot.x-vb.x)/vb.w*100).toFixed(2);
+        const top=((hotspot.y-vb.y)/vb.h*100).toFixed(2);
+        const assigned=state.protonAssignments[group.id]===group.id;
+        const signalIndex=signals.findIndex(s=>s.id===group.id)+1;
+        html+=`<button type="button" class="proton-hotspot ${assigned?"assigned":""}" data-proton-group="${group.id}" style="left:${left}%;top:${top}%;" title="${group.label||"Protonengruppe"}">${assigned&&signalIndex>0?"S"+signalIndex:"?"}</button>`;
+      }
+    }
+    el.protonStructure.innerHTML=html;
+
+    const allDone=signals.length>0 && signals.every(s=>state.protonAssignments[s.id]===s.id);
+    if(allDone){
+      el.protonFeedback.className="feedback good";
+      el.protonFeedback.innerHTML="<strong>Alle Protonengruppen korrekt zugeordnet.</strong><br>"+groups.map(g=>escapeHtml(g.note||"")).filter(Boolean).join("<br>");
+    }else if(!activeSignalId){
+      el.protonFeedback.className="feedback neutral";
+      el.protonFeedback.textContent="Wähle zuerst ein NMR-Signal und klicke dann auf die dazugehörige Protonengruppe in der Struktur.";
+    }
+  }
+
+  function assignProtonGroup(groupId){
+    if(!activeSignalId){
+      el.protonFeedback.className="feedback warn";
+      el.protonFeedback.textContent="Wähle zuerst eines der NMR-Signale aus.";
+      return;
+    }
+    const group=protonGroups().find(g=>g.id===groupId);
+    if(groupId===activeSignalId){
+      state.protonAssignments[activeSignalId]=groupId;
+      save();
+      el.protonFeedback.className="feedback good";
+      el.protonFeedback.textContent=group?.note||"Diese Zuordnung passt.";
+      activeSignalId=null;
+      renderProtonAssignment();
+    }else{
+      el.protonFeedback.className="feedback warn";
+      el.protonFeedback.textContent="Diese Protonengruppe passt noch nicht zu diesem Signal. Prüfe chemische Verschiebung, Integral und Multiplizität.";
     }
   }
 
