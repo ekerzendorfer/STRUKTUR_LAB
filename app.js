@@ -204,14 +204,22 @@
   }
 
   function renderHypothesisState(){
-    if(selectedClass===target().primary_class)el.structureStage.classList.add("unlocked");
-    if(selectedStructure===target().id)el.nameStage.classList.add("unlocked");
-    if(state.nameVerified)el.referenceStage.classList.add("unlocked");
+    const classOk=selectedClass===target().primary_class;
+    const structureOk=selectedStructure===target().id;
+    el.structureStage.classList.toggle("unlocked",classOk);
+    el.nameStage.classList.toggle("unlocked",structureOk);
+    el.referenceStage.classList.toggle("unlocked",!!state.nameVerified);
+    el.referenceCompare.hidden=!referenceUnlocked;
+
     if(referenceUnlocked){
-      el.referenceCompare.hidden=false;
       el.referenceFeedback.className="feedback good";
       el.referenceFeedback.textContent="Referenzvergleich ist freigeschaltet. Vergleiche MS, IR und ¹H-NMR mit der bestätigten Referenz.";
       requestAnimationFrame(renderReferenceComparison);
+    }else{
+      el.referenceFeedback.className="feedback neutral";
+      el.referenceFeedback.textContent=state.nameVerified
+        ? "Die Namenszuordnung ist bestätigt. Du kannst jetzt den Referenzvergleich öffnen."
+        : "";
     }
   }
 
@@ -232,7 +240,7 @@
   function drawIr(){
     const canvas=el.irCanvas,ctx=canvas.getContext("2d"),bands=target().ir?.bands||[];baseCanvas(ctx,canvas);const p={l:65,r:25,t:25,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
     if(el.irGroupsToggle.checked){const areas=[[3600,3200,"O–H"],[3300,2500,"COOH-OH"],[1800,1650,"C=O"],[1300,1000,"C–O"]];ctx.font="12px system-ui";for(const [hi,lo,label] of areas){const x1=p.l+w*(4000-hi)/3500,x2=p.l+w*(4000-lo)/3500;ctx.fillStyle="rgba(96,165,250,.10)";ctx.fillRect(x1,p.t,x2-x1,h);ctx.fillStyle="#88aee0";ctx.textBaseline="top";ctx.fillText(label,x1+4,p.t+2);ctx.textBaseline="alphabetic";}}
-    if(el.irFingerprintToggle.checked){const x=p.l+w*(4000-1500)/3500;ctx.fillStyle="rgba(251,191,36,.08)";ctx.fillRect(x,p.t,p.l+w-x,h);ctx.fillStyle="#c8a951";ctx.fillText("Fingerprintbereich",x+8,p.t+32);}
+    if(el.irFingerprintToggle.checked){const x=p.l+w*(4000-1500)/3500;ctx.fillStyle="rgba(251,191,36,.08)";ctx.fillRect(x,p.t,p.l+w-x,h);ctx.fillStyle="#c8a951";ctx.textBaseline="top";ctx.fillText("Fingerprintbereich",x+8,p.t+2);ctx.textBaseline="alphabetic";}
     gridAxes(ctx,p,w,h,"Wellenzahl / cm⁻¹","Transmission",4000,500,0,1,true);
     ctx.strokeStyle="#59d4df";ctx.lineWidth=2.2;ctx.beginPath();const n=900;for(let i=0;i<n;i++){const cm=4000-3500*i/(n-1),tr=irTransmissionAt(cm,bands),x=p.l+w*i/(n-1),y=p.t+h-h*tr;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();canvas._plot={type:"ir",p,w,h};
   }
