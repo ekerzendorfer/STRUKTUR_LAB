@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.1.3 – grafischer Referenzvergleich  
+**Version:** v0.1.4 – Butanol-Fälle und MS-Fragment-Lernhilfe  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -88,3 +88,17 @@ Der Referenzvergleich stützt die spektroskopische Strukturhypothese. Im später
 - Protonengruppen-Zuordnung für Ethanol, Dimethylether und Ethylacetat
 - NMR-Signal auswählen → passende H-Gruppe in der 2D-Struktur anklicken
 - nach korrekter Zuordnung kurze fachliche Erklärung zu δ, Integral und Multiplizität
+
+
+## v0.1.4
+
+- 1-Butanol und 2-Butanol vollständig kuratiert: M, EI-MS, IR, ¹H-NMR, Stoffklassenfeedback und Protonengruppen
+- neue Fälle Unbekannt D und E zum Vergleich primärer und sekundärer Alkohole
+- MS-Werkzeugkasten erklärt nun ausdrücklich: detektiert werden geladene Ionen, neutrale Fragmente nicht
+- neue MS-Fragment-Lernhilfe nach gelöster Struktur
+- bewusst nur wenige diagnostische Peaks werden erklärt
+- 1-Butanol: Molekülion m/z 74, α-Spaltung m/z 31, Dehydratisierung m/z 56
+- 2-Butanol: Molekülion m/z 74 sowie die beiden α-Spaltungsfragmente m/z 45 und 59
+- Klick auf Peak oder Peak-Chip hebt den Peak hervor und zeigt Ionenformel, Fragmentierungsweg und kurze Erklärung
+
+Die Fragmentzuordnung ist eine kuratierte Lernhilfe und kein universeller Fragmentierungsalgorithmus.
