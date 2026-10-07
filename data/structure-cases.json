@@ -1,0 +1,68 @@
+{
+  "schema_version": "0.1.0",
+  "classes": [
+    "Alkohol",
+    "Ether",
+    "Aldehyd",
+    "Keton",
+    "Carbonsäure",
+    "Ester",
+    "Amin",
+    "Amid",
+    "Alken",
+    "Aromat"
+  ],
+  "cases": [
+    {
+      "id": "CASE_A",
+      "label_de": "Unbekannt A",
+      "target_substance_id": "ETHANOL",
+      "level": "basis",
+      "candidate_ids": [
+        "ETHANOL",
+        "DIMETHYL_ETHER",
+        "ACETONE",
+        "BUTAN_1_OL"
+      ],
+      "intro_de": "Ein farbloser, flüchtiger Stoff soll anhand weniger spektroskopischer Daten identifiziert werden.",
+      "formula_support": {
+        "basic": "molecular",
+        "expert": "none"
+      }
+    },
+    {
+      "id": "CASE_B",
+      "label_de": "Unbekannt B",
+      "target_substance_id": "DIMETHYL_ETHER",
+      "level": "basis",
+      "candidate_ids": [
+        "DIMETHYL_ETHER",
+        "ETHANOL",
+        "ACETONE",
+        "BUTAN_2_OL"
+      ],
+      "intro_de": "Ein unbekannter Sauerstoff-haltiger Stoff besitzt dieselbe molare Masse wie ein sehr geläufiger Alkohol.",
+      "formula_support": {
+        "basic": "molecular",
+        "expert": "none"
+      }
+    },
+    {
+      "id": "CASE_C",
+      "label_de": "Unbekannt C",
+      "target_substance_id": "ETHYL_ACETATE",
+      "level": "basis_mittel",
+      "candidate_ids": [
+        "ETHYL_ACETATE",
+        "ACETONE",
+        "ETHANOL",
+        "DIMETHYL_ETHER"
+      ],
+      "intro_de": "Ein flüchtiger organischer Stoff zeigt mehrere deutliche spektroskopische Hinweise auf seine funktionelle Gruppe.",
+      "formula_support": {
+        "basic": "molecular",
+        "expert": "none"
+      }
+    }
+  ]
+}

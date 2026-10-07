@@ -1,0 +1,417 @@
+{
+  "schema_version": "0.1.0",
+  "note_de": "Kuratierte Unterrichtsdaten. Kein universeller Spektrensimulator.",
+  "substances": [
+    {
+      "id": "ETHANOL",
+      "implemented": true,
+      "name_de": "Ethanol",
+      "formula": "C2H6O",
+      "molar_mass": 46.07,
+      "primary_class": "Alkohol",
+      "functional_groups": [
+        "Alkohol"
+      ],
+      "difficulty": "basis",
+      "structure_svg": "<svg viewBox='0 0 260 100' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='70' y1='50' x2='102' y2='50'/><line x1='158' y1='50' x2='186' y2='50'/></g><g fill='currentColor' font-family='system-ui' font-size='24' text-anchor='middle' dominant-baseline='middle'><text x='42' y='50'>CH₃</text><text x='130' y='50'>CH₂</text><text x='215' y='50'>OH</text></g></svg>",
+      "synonyms": [
+        "Ethanol",
+        "Ethylalkohol",
+        "Äthanol"
+      ],
+      "mass_measurement": {
+        "value": 46,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 18,
+            "intensity": 18
+          },
+          {
+            "mz": 27,
+            "intensity": 16
+          },
+          {
+            "mz": 29,
+            "intensity": 33
+          },
+          {
+            "mz": 31,
+            "intensity": 100
+          },
+          {
+            "mz": 43,
+            "intensity": 12
+          },
+          {
+            "mz": 45,
+            "intensity": 52
+          },
+          {
+            "mz": 46,
+            "intensity": 22
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach NIST Chemistry WebBook"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 3350,
+            "strength": 0.68,
+            "width": 300,
+            "shape": "broad"
+          },
+          {
+            "cm1": 2975,
+            "strength": 0.3,
+            "width": 65
+          },
+          {
+            "cm1": 2930,
+            "strength": 0.25,
+            "width": 60
+          },
+          {
+            "cm1": 1055,
+            "strength": 0.72,
+            "width": 55
+          }
+        ],
+        "source_note": "didaktisch kuratierte Hauptbanden, an NIST-IR ausgerichtet"
+      },
+      "h1_nmr": {
+        "solvent": "CDCl3",
+        "signals": [
+          {
+            "id": "H_A",
+            "delta": 1.25,
+            "integration": 3,
+            "multiplicity": "t",
+            "j_hz": 7.0,
+            "exchangeable": false
+          },
+          {
+            "id": "H_B",
+            "delta": 3.72,
+            "integration": 2,
+            "multiplicity": "q",
+            "j_hz": 7.0,
+            "exchangeable": false
+          },
+          {
+            "id": "H_C",
+            "delta": 2.1,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          }
+        ],
+        "source_note": "Didaktisch kuratiertes Ethanol-Referenzspektrum in CDCl3; OH-Lage bewusst als separiertes breites Signal gesetzt (experimentell variabel)."
+      },
+      "class_feedback": {
+        "Alkohol": "passt: breite O–H-Absorption und ein Protonensignal in Sauerstoffnähe sind vereinbar.",
+        "Ether": "spricht dagegen: eine deutliche breite O–H-Absorption ist mit einem reinen Ether nicht vereinbar.",
+        "Keton": "spricht dagegen: eine starke Carbonylbande fehlt.",
+        "Ester": "spricht dagegen: die typische starke Ester-C=O-Bande fehlt.",
+        "Carbonsäure": "spricht dagegen: keine sehr breite Säure-OH-Bande und keine starke C=O-Bande.",
+        "Aldehyd": "spricht dagegen: keine Carbonylbande und kein stark tieffeldverschobenes Aldehydproton.",
+        "Amin": "spricht dagegen: die Sauerstoff-bezogenen Befunde erklären das Spektrum besser.",
+        "Amid": "spricht dagegen: die für Amide erwartete Carbonylbande fehlt.",
+        "Alken": "spricht dagegen: typische C=C-/vinylische Signale fehlen.",
+        "Aromat": "spricht dagegen: es fehlen aromatische IR-/NMR-Merkmale."
+      }
+    },
+    {
+      "id": "DIMETHYL_ETHER",
+      "implemented": true,
+      "name_de": "Dimethylether",
+      "formula": "C2H6O",
+      "molar_mass": 46.07,
+      "primary_class": "Ether",
+      "functional_groups": [
+        "Ether"
+      ],
+      "difficulty": "basis",
+      "structure_svg": "<svg viewBox='0 0 280 100' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='74' y1='50' x2='115' y2='50'/><line x1='165' y1='50' x2='206' y2='50'/></g><g fill='currentColor' font-family='system-ui' font-size='24' text-anchor='middle' dominant-baseline='middle'><text x='44' y='50'>CH₃</text><text x='140' y='50'>O</text><text x='236' y='50'>CH₃</text></g></svg>",
+      "synonyms": [
+        "Dimethylether",
+        "Methoxymethan",
+        "Methyl ether"
+      ],
+      "mass_measurement": {
+        "value": 46,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 14,
+            "intensity": 12
+          },
+          {
+            "mz": 29,
+            "intensity": 8
+          },
+          {
+            "mz": 31,
+            "intensity": 7
+          },
+          {
+            "mz": 45,
+            "intensity": 100
+          },
+          {
+            "mz": 46,
+            "intensity": 47
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach PubChem/MoNA/NIST"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 2980,
+            "strength": 0.3,
+            "width": 60
+          },
+          {
+            "cm1": 2820,
+            "strength": 0.22,
+            "width": 55
+          },
+          {
+            "cm1": 1110,
+            "strength": 0.78,
+            "width": 65
+          }
+        ],
+        "source_note": "didaktisch kuratierte Hauptbanden, an NIST-IR ausgerichtet; keine O–H-Bande"
+      },
+      "h1_nmr": {
+        "solvent": "didaktisches Referenzspektrum",
+        "signals": [
+          {
+            "id": "H_A",
+            "delta": 3.24,
+            "integration": 6,
+            "multiplicity": "s",
+            "exchangeable": false
+          }
+        ],
+        "source_note": "symmetrisches Molekül: alle sechs Protonen äquivalent; experimenteller Literaturwert ca. 3.24 ppm"
+      },
+      "class_feedback": {
+        "Ether": "passt: keine O–H- oder C=O-Bande; C–O-Bereich und ein einziges 6H-Singulett sind mit einem symmetrischen Ether vereinbar.",
+        "Alkohol": "spricht dagegen: die breite O–H-Absorption fehlt.",
+        "Keton": "spricht dagegen: eine starke Carbonylbande fehlt.",
+        "Ester": "spricht dagegen: eine starke Ester-C=O-Bande fehlt.",
+        "Carbonsäure": "spricht dagegen: weder Säure-OH noch C=O ist erkennbar.",
+        "Aldehyd": "spricht dagegen: Carbonyl- und Aldehydproton-Signaturen fehlen.",
+        "Amin": "spricht dagegen: die Sauerstoffsignatur ist überzeugender; N–H-Merkmale fehlen.",
+        "Amid": "spricht dagegen: die Amid-Carbonylbande fehlt.",
+        "Alken": "spricht dagegen: typische C=C-/vinylische Signale fehlen.",
+        "Aromat": "spricht dagegen: keine aromatischen Protonen oder Ringbanden."
+      }
+    },
+    {
+      "id": "ETHYL_ACETATE",
+      "implemented": true,
+      "name_de": "Ethylacetat",
+      "formula": "C4H8O2",
+      "molar_mass": 88.11,
+      "primary_class": "Ester",
+      "functional_groups": [
+        "Ester"
+      ],
+      "difficulty": "basis_mittel",
+      "structure_svg": "<svg viewBox='0 0 360 110' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='70' y1='60' x2='103' y2='60'/><line x1='155' y1='60' x2='190' y2='60'/><line x1='185' y1='54' x2='215' y2='22'/><line x1='191' y1='60' x2='221' y2='28'/><line x1='240' y1='60' x2='268' y2='60'/><line x1='304' y1='60' x2='330' y2='60'/></g><g fill='currentColor' font-family='system-ui' font-size='22' text-anchor='middle' dominant-baseline='middle'><text x='40' y='60'>CH₃</text><text x='130' y='60'>C</text><text x='224' y='20'>O</text><text x='215' y='60'>O</text><text x='286' y='60'>CH₂</text><text x='345' y='60'>CH₃</text></g></svg>",
+      "synonyms": [
+        "Ethylacetat",
+        "Ethansäureethylester",
+        "Ethylethanoat"
+      ],
+      "mass_measurement": {
+        "value": 88,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 29,
+            "intensity": 14
+          },
+          {
+            "mz": 43,
+            "intensity": 100
+          },
+          {
+            "mz": 45,
+            "intensity": 15
+          },
+          {
+            "mz": 61,
+            "intensity": 15
+          },
+          {
+            "mz": 70,
+            "intensity": 10
+          },
+          {
+            "mz": 88,
+            "intensity": 5
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach NIST/SDBS-Referenzdaten"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 2983,
+            "strength": 0.24,
+            "width": 55
+          },
+          {
+            "cm1": 1743,
+            "strength": 0.92,
+            "width": 34
+          },
+          {
+            "cm1": 1374,
+            "strength": 0.32,
+            "width": 38
+          },
+          {
+            "cm1": 1243,
+            "strength": 0.72,
+            "width": 45
+          },
+          {
+            "cm1": 1048,
+            "strength": 0.58,
+            "width": 42
+          }
+        ],
+        "source_note": "Hauptbanden nach publizierten/NIST-nahen Referenzdaten"
+      },
+      "h1_nmr": {
+        "solvent": "CDCl3",
+        "signals": [
+          {
+            "id": "H_A",
+            "delta": 1.26,
+            "integration": 3,
+            "multiplicity": "t",
+            "j_hz": 7.1,
+            "exchangeable": false
+          },
+          {
+            "id": "H_B",
+            "delta": 2.05,
+            "integration": 3,
+            "multiplicity": "s",
+            "exchangeable": false
+          },
+          {
+            "id": "H_C",
+            "delta": 4.12,
+            "integration": 2,
+            "multiplicity": "q",
+            "j_hz": 7.1,
+            "exchangeable": false
+          }
+        ],
+        "source_note": "Referenzwerte in CDCl3"
+      },
+      "class_feedback": {
+        "Ester": "passt: starke C=O-Bande zusammen mit kräftigem C–O-Bereich und dem NMR-Muster ist typisch vereinbar mit einem Ester.",
+        "Alkohol": "spricht dagegen: keine breite O–H-Bande; zusätzlich ist eine starke Carbonylbande vorhanden.",
+        "Ether": "spricht dagegen: ein einfacher Ether besitzt keine starke C=O-Bande.",
+        "Keton": "teilweise denkbar wegen C=O, aber der starke C–O-Bereich und das Gesamtmuster sprechen eher für einen Ester.",
+        "Carbonsäure": "spricht dagegen: die sehr breite Säure-OH-Bande fehlt.",
+        "Aldehyd": "spricht dagegen: kein charakteristisches Aldehydproton im starken Tieffeldbereich.",
+        "Amin": "spricht dagegen: Carbonyl- und C–O-Merkmale passen deutlich besser zu einer Sauerstofffunktion.",
+        "Amid": "spricht dagegen: N–H-Merkmale fehlen; die Carbonylposition/C–O-Signatur passt besser zum Ester.",
+        "Alken": "spricht dagegen: die dominante Carbonyl-/C–O-Signatur wird dadurch nicht erklärt.",
+        "Aromat": "spricht dagegen: aromatische Protonensignale fehlen."
+      }
+    },
+    {
+      "id": "ACETONE",
+      "implemented": false,
+      "name_de": "Aceton",
+      "formula": "C3H6O",
+      "molar_mass": 58.08,
+      "primary_class": "Keton",
+      "difficulty": "basis",
+      "structure_svg": "<svg viewBox='0 0 280 110' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='68' y1='60' x2='100' y2='60'/><line x1='150' y1='60' x2='182' y2='60'/><line x1='144' y1='54' x2='174' y2='22'/><line x1='150' y1='60' x2='180' y2='28'/></g><g fill='currentColor' font-family='system-ui' font-size='24' text-anchor='middle' dominant-baseline='middle'><text x='40' y='60'>CH₃</text><text x='125' y='60'>C</text><text x='184' y='20'>O</text><text x='212' y='60'>CH₃</text></g></svg>",
+      "synonyms": [
+        "Aceton",
+        "Propanon"
+      ]
+    },
+    {
+      "id": "BUTAN_1_OL",
+      "implemented": false,
+      "name_de": "1-Butanol",
+      "formula": "C4H10O",
+      "molar_mass": 74.12,
+      "primary_class": "Alkohol",
+      "difficulty": "mittel",
+      "structure_svg": "<svg viewBox='0 0 400 100' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='70' y1='50' x2='102' y2='50'/><line x1='158' y1='50' x2='190' y2='50'/><line x1='246' y1='50' x2='278' y2='50'/><line x1='334' y1='50' x2='360' y2='50'/></g><g fill='currentColor' font-family='system-ui' font-size='22' text-anchor='middle' dominant-baseline='middle'><text x='42' y='50'>CH₃</text><text x='130' y='50'>CH₂</text><text x='218' y='50'>CH₂</text><text x='306' y='50'>CH₂</text><text x='380' y='50'>OH</text></g></svg>",
+      "synonyms": [
+        "1-Butanol",
+        "Butan-1-ol"
+      ]
+    },
+    {
+      "id": "BUTAN_2_OL",
+      "implemented": false,
+      "name_de": "2-Butanol",
+      "formula": "C4H10O",
+      "molar_mass": 74.12,
+      "primary_class": "Alkohol",
+      "difficulty": "mittel",
+      "structure_svg": "<svg viewBox='0 0 390 120' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='70' y1='70' x2='103' y2='70'/><line x1='157' y1='70' x2='191' y2='70'/><line x1='245' y1='70' x2='278' y2='70'/><line x1='130' y1='58' x2='130' y2='28'/></g><g fill='currentColor' font-family='system-ui' font-size='22' text-anchor='middle' dominant-baseline='middle'><text x='42' y='70'>CH₃</text><text x='130' y='70'>CH</text><text x='130' y='18'>OH</text><text x='218' y='70'>CH₂</text><text x='306' y='70'>CH₃</text></g></svg>",
+      "synonyms": [
+        "2-Butanol",
+        "Butan-2-ol"
+      ]
+    },
+    {
+      "id": "TOLUENE",
+      "implemented": false,
+      "name_de": "Toluol",
+      "formula": "C7H8",
+      "molar_mass": 92.14,
+      "primary_class": "Aromat",
+      "difficulty": "mittel",
+      "structure_svg": "<svg viewBox='0 0 280 150' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><polygon points='90,30 145,30 172,75 145,120 90,120 63,75'/><line x1='80' y1='55' x2='98' y2='40'/><line x1='140' y1='40' x2='160' y2='75'/><line x1='140' y1='110' x2='98' y2='110'/><line x1='172' y1='75' x2='215' y2='75'/></g><g fill='currentColor' font-family='system-ui' font-size='22' text-anchor='middle' dominant-baseline='middle'><text x='242' y='75'>CH₃</text></g></svg>",
+      "synonyms": [
+        "Toluol",
+        "Methylbenzol"
+      ]
+    },
+    {
+      "id": "SALICYLIC_ACID",
+      "implemented": false,
+      "name_de": "Salicylsäure",
+      "formula": "C7H6O3",
+      "molar_mass": 138.12,
+      "primary_class": "Carbonsäure",
+      "functional_groups": [
+        "Carbonsäure",
+        "Phenol",
+        "Aromat"
+      ],
+      "difficulty": "experte",
+      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='192' y1='82' x2='245' y2='82'/><line x1='110' y1='35' x2='110' y2='10'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='88' y='12'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
+      "synonyms": [
+        "Salicylsäure",
+        "2-Hydroxybenzoesäure"
+      ]
+    }
+  ]
+}

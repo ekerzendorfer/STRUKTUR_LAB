@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="STRUKTUR-LAB – M, MS, IR und 1H-NMR schrittweise interpretieren und Strukturhypothesen entwickeln.">
+  <title>STRUKTUR-LAB – Spektren verstehen</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="hero">
+  <div>
+    <p class="eyebrow">CHEMIE mit KI · ANALYTISCHE STRUKTURAUFKLÄRUNG</p>
+    <h1>STRUKTUR-LAB</h1>
+    <p>M → MS → IR → ¹H-NMR → begründete Strukturhypothese</p>
+  </div>
+  <div class="version">v0.1.2<br><small>Single-Mode · Prototyp</small></div>
+</header>
+
+<main class="shell">
+  <section class="card setup-card">
+    <div class="setup-grid">
+      <label>Anspruchsniveau
+        <select id="modeSelect">
+          <option value="basic" selected>Basismodus · Summenformel als Hilfe</option>
+          <option value="expert">Expertenmodus · nur M zu Beginn</option>
+        </select>
+      </label>
+      <label>Fall
+        <select id="caseSelect"></select>
+      </label>
+      <div class="case-intro">
+        <span class="small-label">Auftrag</span>
+        <strong id="caseLabel">–</strong>
+        <span id="caseIntro">–</span>
+      </div>
+      <button id="toolboxBtn" class="secondary compact" type="button">Methoden-Werkzeugkasten</button>
+    </div>
+  </section>
+
+  <nav class="stepper card" aria-label="Analysephasen">
+    <button class="step active" data-step="mass"><span>1</span><strong>M</strong><small>Molare Masse</small></button>
+    <button class="step locked" data-step="ms"><span>2</span><strong>MS</strong><small>Massenspektrum</small></button>
+    <button class="step locked" data-step="ir"><span>3</span><strong>IR</strong><small>Funktionsgruppen</small></button>
+    <button class="step locked" data-step="nmr"><span>4</span><strong>¹H-NMR</strong><small>Protonenumgebungen</small></button>
+    <button class="step locked" data-step="hypothesis"><span>5</span><strong>Hypothese</strong><small>Klasse & Struktur</small></button>
+  </nav>
+
+  <div class="work-grid">
+    <section class="card workspace">
+      <div class="section-head">
+        <div>
+          <p class="kicker" id="stageKicker">Phase 1</p>
+          <h2 id="stageTitle">Molare Masse</h2>
+        </div>
+        <button id="stageHelpBtn" class="ghost mini" type="button">Hilfe zu dieser Methode</button>
+      </div>
+
+      <div id="stageMass" class="stage active">
+        <div class="mass-panel">
+          <span class="small-label">Experimentell bestimmte molare Masse</span>
+          <div class="mass-value"><strong id="massValue">–</strong><span>g·mol⁻¹</span></div>
+          <div id="formulaBox" class="formula-box"></div>
+          <p class="explain">Die molare Masse schränkt mögliche Strukturen ein, beweist aber noch keine Stoffidentität.</p>
+        </div>
+        <label class="journal-input">Dein erster Befund
+          <textarea id="massNote" rows="3" placeholder="Was lässt sich bereits festhalten? Welche Möglichkeiten bleiben offen?"></textarea>
+        </label>
+        <button class="primary next-btn" data-next="ms" type="button">Befund speichern · MS öffnen</button>
+      </div>
+
+      <div id="stageMs" class="stage">
+        <div class="toolbar">
+          <span>EI-Massenspektrum · relative Intensität</span>
+          <button class="ghost mini contextual-help" data-topic="ms" type="button">MS-Basics</button>
+        </div>
+        <canvas id="msCanvas" width="1000" height="460" aria-label="Massenspektrum"></canvas>
+        <div id="msReadout" class="readout">Klicke auf einen Peak, um m/z und relative Intensität abzulesen.</div>
+        <label class="journal-input">MS-Befund
+          <textarea id="msNote" rows="3" placeholder="Molekülion? Basispeak? Auffällige Fragmente? Noch keine fertige Struktur nötig."></textarea>
+        </label>
+        <button class="primary next-btn" data-next="ir" type="button">Befund speichern · IR öffnen</button>
+      </div>
+
+      <div id="stageIr" class="stage">
+        <div class="toolbar wrap">
+          <span>IR-Spektrum · Transmission</span>
+          <label class="toggle"><input id="irGroupsToggle" type="checkbox"> Funktionsgruppenbereiche</label>
+          <label class="toggle"><input id="irFingerprintToggle" type="checkbox"> Fingerprintbereich</label>
+          <button class="ghost mini contextual-help" data-topic="ir" type="button">IR-Basics</button>
+        </div>
+        <canvas id="irCanvas" width="1000" height="460" aria-label="IR-Spektrum"></canvas>
+        <div id="irReadout" class="readout">Klicke ins Spektrum, um die Wellenzahl abzulesen.</div>
+        <label class="journal-input">IR-Befund
+          <textarea id="irNote" rows="3" placeholder="Welche Banden sind besonders auffällig? Welche funktionellen Gruppen werden gestützt oder ausgeschlossen?"></textarea>
+        </label>
+        <button class="primary next-btn" data-next="nmr" type="button">Befund speichern · ¹H-NMR öffnen</button>
+      </div>
+
+      <div id="stageNmr" class="stage">
+        <div class="toolbar wrap">
+          <span>¹H-NMR · didaktisch kuratiertes Referenzspektrum</span>
+          <label class="toggle"><input id="nmrRegionsToggle" type="checkbox"> Orientierungsbereiche</label>
+          <button class="ghost mini contextual-help" data-topic="nmr" type="button">NMR-Basics</button>
+        </div>
+        <canvas id="nmrCanvas" width="1000" height="460" aria-label="Protonen-NMR"></canvas>
+        <div id="nmrReadout" class="readout">Klicke auf ein Signal: δ, Integral und Multiplizität werden angezeigt.</div>
+        <div id="nmrSignalTable" class="signal-table"></div>
+        <label class="journal-input">NMR-Befund
+          <textarea id="nmrNote" rows="3" placeholder="Wie viele Protonenumgebungen? Welche Integrale und Multiplizitäten? Welche Teilstrukturen sind denkbar?"></textarea>
+        </label>
+        <button class="primary next-btn" data-next="hypothesis" type="button">Befund speichern · Hypothese bilden</button>
+      </div>
+
+      <div id="stageHypothesis" class="stage">
+        <div class="hypothesis-block">
+          <span class="small-label">Stufe 1 · Stoffklasse</span>
+          <h3>Welche Stoffklasse ist mit deinen Befunden am besten vereinbar?</h3>
+          <div id="classGrid" class="class-grid"></div>
+          <div id="classFeedback" class="feedback neutral">Wähle eine Stoffklasse und begründe sie mit deinen Spektren.</div>
+        </div>
+
+        <div id="structureStage" class="hypothesis-block locked-panel">
+          <span class="small-label">Stufe 2 · Strukturhypothese</span>
+          <h3>Welche Struktur passt am besten zu allen vorliegenden Daten?</h3>
+          <p class="hint">Die Namen sind zunächst verborgen. Entscheide anhand der Strukturformeln.</p>
+          <div id="structureGrid" class="structure-grid"></div>
+          <label class="journal-input">Begründung deiner Strukturhypothese
+            <textarea id="hypothesisNote" rows="3" placeholder="Welche Kombination aus M/MS, IR und NMR trägt deine Entscheidung?"></textarea>
+          </label>
+          <button id="submitHypothesisBtn" class="primary" type="button">Strukturhypothese festlegen</button>
+          <div id="structureFeedback" class="feedback neutral">Noch keine Strukturhypothese festgelegt.</div>
+        </div>
+
+        <div id="nameStage" class="hypothesis-block locked-panel">
+          <span class="small-label">Stufe 3 · Name</span>
+          <h3>Wie heißt die ausgewählte Verbindung?</h3>
+          <label>Stoffname
+            <input id="nameInput" type="text" autocomplete="off" placeholder="Name oder gebräuchliches Synonym">
+          </label>
+          <button id="checkNameBtn" class="secondary" type="button">Name prüfen</button>
+          <div id="nameFeedback" class="feedback neutral">Die Namenszuordnung wird erst nach einer passenden Strukturhypothese freigeschaltet.</div>
+        </div>
+
+        <div id="referenceStage" class="hypothesis-block locked-panel">
+          <span class="small-label">Nach der Hypothese</span>
+          <h3>Referenzvergleich</h3>
+          <p>Erst jetzt darf das Spektrum der gewählten Referenz als Absicherung eingeblendet werden. In v0.1.2 wird die Freigabe demonstriert; die vollständige Überlagerungsansicht folgt im nächsten Feinschliff.</p>
+          <button id="referenceBtn" class="secondary" type="button">Referenzvergleich freischalten</button>
+          <div id="referenceFeedback" class="feedback neutral"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card journal-card">
+      <div class="section-head">
+        <div><p class="kicker">Zentral</p><h2>Analysenjournal</h2></div>
+        <button id="copyJournalBtn" class="ghost mini" type="button">Protokoll kopieren</button>
+      </div>
+      <p class="hint">Deine Befunde werden beim Wechsel der Analysephasen gesammelt und bilden später die Grundlage für ein Protokoll.</p>
+      <div id="journalView" class="journal-view"></div>
+      <div class="journal-status"><span>Fortschritt</span><strong id="progressText">1 / 5</strong></div>
+      <button id="resetCaseBtn" class="danger subtle" type="button">Fall zurücksetzen</button>
+    </aside>
+  </div>
+</main>
+
+<div id="toolboxOverlay" class="overlay" aria-hidden="true">
+  <section class="toolbox" role="dialog" aria-modal="true" aria-labelledby="toolboxTitle">
+    <div class="section-head">
+      <div><p class="kicker">Begleiter · keine Lösung</p><h2 id="toolboxTitle">Methoden-Werkzeugkasten</h2></div>
+      <button id="toolboxCloseBtn" class="ghost mini" type="button">Schließen</button>
+    </div>
+    <div class="toolbox-tabs">
+      <button data-topic="elemental">Elementaranalyse</button>
+      <button data-topic="ms">MS</button>
+      <button data-topic="ir">IR</button>
+      <button data-topic="nmr">¹H-NMR</button>
+    </div>
+    <div id="toolboxContent" class="toolbox-content"></div>
+  </section>
+</div>
+
+<footer>STRUKTUR-LAB · kuratierte Unterrichtsspektren · kein universeller Spektrensimulator</footer>
+<script src="app.js" defer></script>
+</body>
+</html>
