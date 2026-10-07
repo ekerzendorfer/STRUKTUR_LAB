@@ -14,7 +14,7 @@
     <h1>STRUKTUR-LAB</h1>
     <p>M → MS → IR → ¹H-NMR → begründete Strukturhypothese</p>
   </div>
-  <div class="version">v0.1.2<br><small>Single-Mode · Prototyp</small></div>
+  <div class="version">v0.1.3<br><small>Single-Mode · Prototyp</small></div>
 </header>
 
 <main class="shell">
@@ -142,12 +142,41 @@
           <div id="nameFeedback" class="feedback neutral">Die Namenszuordnung wird erst nach einer passenden Strukturhypothese freigeschaltet.</div>
         </div>
 
+
+        <div id="protonAssignmentStage" class="hypothesis-block locked-panel">
+          <span class="small-label">Vertiefung · nach gelöster Struktur</span>
+          <h3>Signal ↔ Protonengruppe erkunden</h3>
+          <p class="hint">Klicke auf ein NMR-Signal oder auf eine Protonengruppe in der bestätigten Struktur. Das zugehörige Gegenstück wird hervorgehoben und kurz erklärt. Diese Lernansicht wird erst nach der richtigen Struktur freigeschaltet.</p>
+          <div id="protonSignalList" class="proton-signal-list"></div>
+          <div id="protonStructure" class="proton-structure"></div>
+          <div id="protonFeedback" class="feedback neutral">Klicke auf ein NMR-Signal oder eine Protonengruppe, um die Zuordnung sichtbar zu machen.</div>
+        </div>
+
         <div id="referenceStage" class="hypothesis-block locked-panel">
           <span class="small-label">Nach der Hypothese</span>
-          <h3>Referenzvergleich</h3>
-          <p>Erst jetzt darf das Spektrum der gewählten Referenz als Absicherung eingeblendet werden. In v0.1.2 wird die Freigabe demonstriert; die vollständige Überlagerungsansicht folgt im nächsten Feinschliff.</p>
-          <button id="referenceBtn" class="secondary" type="button">Referenzvergleich freischalten</button>
+          <h3>Kandidatenvergleich</h3>
+          <p>Deine Hypothese ist bereits festgelegt. Jetzt kannst du rückblickend prüfen, warum andere angebotene Strukturen schlechter zu den Spektren passen.</p>
+          <button id="referenceBtn" class="secondary" type="button">Kandidatenvergleich öffnen</button>
           <div id="referenceFeedback" class="feedback neutral"></div>
+          <div id="referenceCompare" class="reference-compare" hidden>
+            <div class="reference-toolbar">
+              <div>
+                <strong>Spektrenvergleich</strong>
+                <span>Wähle einen Kandidaten. Seine Referenz wird gestrichelt über das unbekannte Spektrum gelegt.</span>
+              </div>
+              <label class="reference-candidate">Kandidat
+                <select id="referenceCandidateSelect"></select>
+              </label>
+              <div class="reference-tabs">
+                <button class="active" data-reference-method="ir" type="button">IR</button>
+                <button data-reference-method="ms" type="button">MS</button>
+                <button data-reference-method="nmr" type="button">¹H-NMR</button>
+              </div>
+            </div>
+            <canvas id="referenceCanvas" width="1000" height="390" aria-label="Referenzvergleich"></canvas>
+            <div id="referenceLegend" class="reference-legend">IR: unbekannt durchgezogen · Kandidat gestrichelt</div>
+            <p class="hint">Deckungsgleiche Signale stützen die Hypothese. Im Analytik-Hub folgt zur endgültigen Bestätigung später noch der gezielte GC-Referenzstandard.</p>
+          </div>
         </div>
       </div>
     </section>

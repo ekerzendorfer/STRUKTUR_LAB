@@ -90,7 +90,7 @@
             "delta": 1.25,
             "integration": 3,
             "multiplicity": "t",
-            "j_hz": 7.0,
+            "j_hz": 7,
             "exchangeable": false
           },
           {
@@ -98,7 +98,7 @@
             "delta": 3.72,
             "integration": 2,
             "multiplicity": "q",
-            "j_hz": 7.0,
+            "j_hz": 7,
             "exchangeable": false
           },
           {
@@ -109,7 +109,48 @@
             "exchangeable": true
           }
         ],
-        "source_note": "Didaktisch kuratiertes Ethanol-Referenzspektrum in CDCl3; OH-Lage bewusst als separiertes breites Signal gesetzt (experimentell variabel)."
+        "source_note": "Didaktisch kuratiertes Ethanol-Referenzspektrum in CDCl3; OH-Lage bewusst als separiertes breites Signal gesetzt (experimentell variabel).",
+        "proton_groups": [
+          {
+            "id": "H_A",
+            "label": "CH₃-Gruppe",
+            "hotspots": [
+              {
+                "x": 42,
+                "y": 50,
+                "w": 58,
+                "h": 34
+              }
+            ],
+            "note": "Das 3H-Triplet bei ca. 1,25 ppm gehört zur CH₃-Gruppe. Die benachbarte CH₂-Gruppe besitzt zwei Protonen und führt im einfachen n+1-Modell zum Triplet."
+          },
+          {
+            "id": "H_B",
+            "label": "CH₂-Gruppe neben O",
+            "hotspots": [
+              {
+                "x": 130,
+                "y": 50,
+                "w": 62,
+                "h": 34
+              }
+            ],
+            "note": "Das 2H-Quartett bei ca. 3,72 ppm gehört zur CH₂-Gruppe neben Sauerstoff. Der elektronegative Sauerstoff verschiebt das Signal ins Tieffeld; drei Nachbarprotonen ergeben näherungsweise ein Quartett."
+          },
+          {
+            "id": "H_C",
+            "label": "OH-Proton",
+            "hotspots": [
+              {
+                "x": 215,
+                "y": 50,
+                "w": 48,
+                "h": 34
+              }
+            ],
+            "note": "Das breite 1H-Signal gehört zum austauschbaren OH-Proton. Seine genaue Lage und Aufspaltung können experimentell stark variieren."
+          }
+        ]
       },
       "class_feedback": {
         "Alkohol": "passt: breite O–H-Absorption und ein Protonensignal in Sauerstoffnähe sind vereinbar.",
@@ -201,7 +242,28 @@
             "exchangeable": false
           }
         ],
-        "source_note": "symmetrisches Molekül: alle sechs Protonen äquivalent; experimenteller Literaturwert ca. 3.24 ppm"
+        "source_note": "symmetrisches Molekül: alle sechs Protonen äquivalent; experimenteller Literaturwert ca. 3.24 ppm",
+        "proton_groups": [
+          {
+            "id": "H_A",
+            "label": "beide äquivalenten CH₃-Gruppen",
+            "hotspots": [
+              {
+                "x": 44,
+                "y": 50,
+                "w": 58,
+                "h": 34
+              },
+              {
+                "x": 236,
+                "y": 50,
+                "w": 58,
+                "h": 34
+              }
+            ],
+            "note": "Alle sechs Protonen der beiden CH₃-Gruppen sind durch die Molekülsymmetrie äquivalent. Daher erscheint nur ein 6H-Singulett; die Nähe zum Sauerstoff verschiebt es gegenüber einem einfachen Alkylsignal."
+          }
+        ]
       },
       "class_feedback": {
         "Ether": "passt: keine O–H- oder C=O-Bande; C–O-Bereich und ein einziges 6H-Singulett sind mit einem symmetrischen Ether vereinbar.",
@@ -323,7 +385,48 @@
             "exchangeable": false
           }
         ],
-        "source_note": "Referenzwerte in CDCl3"
+        "source_note": "Referenzwerte in CDCl3",
+        "proton_groups": [
+          {
+            "id": "H_A",
+            "label": "terminales CH₃ der Ethylgruppe",
+            "hotspots": [
+              {
+                "x": 345,
+                "y": 60,
+                "w": 52,
+                "h": 32
+              }
+            ],
+            "note": "Das 3H-Triplet bei ca. 1,26 ppm gehört zum terminalen CH₃ der Ethylgruppe. Zwei benachbarte CH₂-Protonen ergeben näherungsweise ein Triplet."
+          },
+          {
+            "id": "H_B",
+            "label": "CH₃ an der Carbonylgruppe",
+            "hotspots": [
+              {
+                "x": 40,
+                "y": 60,
+                "w": 56,
+                "h": 32
+              }
+            ],
+            "note": "Das 3H-Singulett bei ca. 2,05 ppm gehört zur CH₃-Gruppe direkt neben der Carbonylgruppe. Am benachbarten Carbonyl-C sitzen keine Protonen, daher fehlt die einfache vicinale Aufspaltung."
+          },
+          {
+            "id": "H_C",
+            "label": "O–CH₂-Gruppe",
+            "hotspots": [
+              {
+                "x": 286,
+                "y": 60,
+                "w": 58,
+                "h": 32
+              }
+            ],
+            "note": "Das 2H-Quartett bei ca. 4,12 ppm gehört zur O–CH₂-Gruppe. Sauerstoff bewirkt die deutliche Tieffeldverschiebung; drei Nachbarprotonen des terminalen CH₃ ergeben näherungsweise ein Quartett."
+          }
+        ]
       },
       "class_feedback": {
         "Ester": "passt: starke C=O-Bande zusammen mit kräftigem C–O-Bereich und dem NMR-Muster ist typisch vereinbar mit einem Ester.",

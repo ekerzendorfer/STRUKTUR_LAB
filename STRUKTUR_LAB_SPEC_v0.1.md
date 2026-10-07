@@ -174,3 +174,13 @@ STRUKTUR_LAB/
 - NMR-Signalchips enthalten zusätzlich δ-Werte, damit die Zuordnung zwischen Spektrum und Befund leichter fällt.
 - Die relative Integrationsfolge wird kompakt angezeigt.
 - Strukturkarten wurden visuell überarbeitet, damit Bindungsstriche die Gruppenbezeichnungen nicht überlagern.
+
+
+### Nachtrag v0.1.3
+
+- Referenzvergleich ist grafisch implementiert und bleibt bis nach richtiger Strukturhypothese und Namenszuordnung gesperrt.
+- MS, IR und ¹H-NMR können einzeln verglichen werden.
+- Das unbekannte Spektrum wird durchgezogen, die bestätigte Referenz gestrichelt überlagert; Spektren werden nicht künstlich gegeneinander verschoben.
+- Die Überlagerung dient als spektroskopische Absicherung, nicht als endgültige Identitätsbestätigung.
+- IR-Bereichsbeschriftungen werden oberhalb der hohen Transmissionsbaseline platziert.
+- Strukturkarten verwenden feinere, weniger dominante Bindungsstriche.
