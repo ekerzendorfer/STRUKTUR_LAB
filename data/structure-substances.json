@@ -117,7 +117,9 @@
             "hotspots": [
               {
                 "x": 42,
-                "y": 50
+                "y": 50,
+                "w": 58,
+                "h": 34
               }
             ],
             "note": "Das 3H-Triplet bei ca. 1,25 ppm gehört zur CH₃-Gruppe. Die benachbarte CH₂-Gruppe besitzt zwei Protonen und führt im einfachen n+1-Modell zum Triplet."
@@ -128,7 +130,9 @@
             "hotspots": [
               {
                 "x": 130,
-                "y": 50
+                "y": 50,
+                "w": 62,
+                "h": 34
               }
             ],
             "note": "Das 2H-Quartett bei ca. 3,72 ppm gehört zur CH₂-Gruppe neben Sauerstoff. Der elektronegative Sauerstoff verschiebt das Signal ins Tieffeld; drei Nachbarprotonen ergeben näherungsweise ein Quartett."
@@ -139,7 +143,9 @@
             "hotspots": [
               {
                 "x": 215,
-                "y": 50
+                "y": 50,
+                "w": 48,
+                "h": 34
               }
             ],
             "note": "Das breite 1H-Signal gehört zum austauschbaren OH-Proton. Seine genaue Lage und Aufspaltung können experimentell stark variieren."
@@ -244,11 +250,15 @@
             "hotspots": [
               {
                 "x": 44,
-                "y": 50
+                "y": 50,
+                "w": 58,
+                "h": 34
               },
               {
                 "x": 236,
-                "y": 50
+                "y": 50,
+                "w": 58,
+                "h": 34
               }
             ],
             "note": "Alle sechs Protonen der beiden CH₃-Gruppen sind durch die Molekülsymmetrie äquivalent. Daher erscheint nur ein 6H-Singulett; die Nähe zum Sauerstoff verschiebt es gegenüber einem einfachen Alkylsignal."
@@ -383,7 +393,9 @@
             "hotspots": [
               {
                 "x": 345,
-                "y": 60
+                "y": 60,
+                "w": 52,
+                "h": 32
               }
             ],
             "note": "Das 3H-Triplet bei ca. 1,26 ppm gehört zum terminalen CH₃ der Ethylgruppe. Zwei benachbarte CH₂-Protonen ergeben näherungsweise ein Triplet."
@@ -394,7 +406,9 @@
             "hotspots": [
               {
                 "x": 40,
-                "y": 60
+                "y": 60,
+                "w": 56,
+                "h": 32
               }
             ],
             "note": "Das 3H-Singulett bei ca. 2,05 ppm gehört zur CH₃-Gruppe direkt neben der Carbonylgruppe. Am benachbarten Carbonyl-C sitzen keine Protonen, daher fehlt die einfache vicinale Aufspaltung."
@@ -405,7 +419,9 @@
             "hotspots": [
               {
                 "x": 286,
-                "y": 60
+                "y": 60,
+                "w": 58,
+                "h": 32
               }
             ],
             "note": "Das 2H-Quartett bei ca. 4,12 ppm gehört zur O–CH₂-Gruppe. Sauerstoff bewirkt die deutliche Tieffeldverschiebung; drei Nachbarprotonen des terminalen CH₃ ergeben näherungsweise ein Quartett."
