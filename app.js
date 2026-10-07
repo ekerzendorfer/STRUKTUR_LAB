@@ -95,7 +95,8 @@
     el.protonStructure.addEventListener("click",e=>{
       const b=e.target.closest("[data-proton-group]");
       if(!b) return;
-      assignProtonGroup(b.dataset.protonGroup);
+      activeSignalId=b.dataset.protonGroup;
+      renderProtonAssignment();
     });
     el.copyJournalBtn.addEventListener("click",copyJournal);
     el.resetCaseBtn.addEventListener("click",()=>resetCase(false));
@@ -404,58 +405,43 @@
     const signals=target().h1_nmr?.signals||[],groups=protonGroups();
     if(!groups.length){
       el.protonFeedback.className="feedback neutral";
-      el.protonFeedback.textContent="Für diesen Stoff ist die Protonengruppen-Zuordnung noch nicht kuratiert.";
+      el.protonFeedback.textContent="Für diesen Stoff ist die Protonengruppen-Verknüpfung noch nicht kuratiert.";
       return;
     }
-    if(!state.protonAssignments) state.protonAssignments={};
 
     el.protonSignalList.innerHTML=signals.map((sig,i)=>{
-      const done=state.protonAssignments[sig.id]===sig.id;
       const active=activeSignalId===sig.id;
-      return `<button type="button" class="proton-signal ${done?"done":""} ${active?"active":""}" data-signal-id="${sig.id}"><strong>Signal ${i+1}</strong><span>δ ${sig.delta.toLocaleString("de-AT")} ppm · ${sig.integration} H · ${sig.multiplicity}</span></button>`;
+      return `<button type="button" class="proton-signal ${active?"active":""}" data-signal-id="${sig.id}">
+        <strong>Signal ${i+1}</strong>
+        <span>δ ${sig.delta.toLocaleString("de-AT")} ppm · ${sig.integration} H · ${sig.multiplicity}</span>
+      </button>`;
     }).join("");
 
     let markers="";
     for(const group of groups){
       for(const hotspot of group.hotspots||[]){
-        const assigned=state.protonAssignments[group.id]===group.id;
-        const signalIndex=signals.findIndex(s=>s.id===group.id)+1;
-        const label=assigned&&signalIndex>0?"S"+signalIndex:"?";
-        markers+=`<g class="proton-hotspot-svg ${assigned?"assigned":""}" data-proton-group="${group.id}" role="button" aria-label="${group.label||"Protonengruppe"}"><circle cx="${hotspot.x}" cy="${hotspot.y}" r="15"></circle><text x="${hotspot.x}" y="${hotspot.y+1}" text-anchor="middle" dominant-baseline="middle">${label}</text></g>`;
+        const active=activeSignalId===group.id;
+        const w=hotspot.w||58,h=hotspot.h||34;
+        markers+=`<g class="proton-group-hit ${active?"active":""}" data-proton-group="${group.id}" role="button" aria-label="${group.label||"Protonengruppe"}">
+          <rect x="${hotspot.x-w/2}" y="${hotspot.y-h/2}" width="${w}" height="${h}" rx="9" ry="9"></rect>
+        </g>`;
       }
     }
-    const annotated=(target().structure_svg||"").replace("</svg>",markers+"</svg>");
+
+    const source=target().structure_svg||"";
+    const annotated=source.replace(/(<svg[^>]*>)/, `$1${markers}`);
     el.protonStructure.innerHTML=`<div class="proton-svg">${annotated}</div>`;
 
-    const allDone=signals.length>0 && signals.every(s=>state.protonAssignments[s.id]===s.id);
-    if(allDone){
+    const group=groups.find(g=>g.id===activeSignalId);
+    if(group){
       el.protonFeedback.className="feedback good";
-      el.protonFeedback.innerHTML="<strong>Alle Protonengruppen korrekt zugeordnet.</strong><br>"+groups.map(g=>escapeHtml(g.note||"")).filter(Boolean).join("<br>");
-    }else if(!activeSignalId){
+      el.protonFeedback.innerHTML=`<strong>${escapeHtml(group.label||"Protonengruppe")}</strong><br>${escapeHtml(group.note||"")}`;
+    }else{
       el.protonFeedback.className="feedback neutral";
-      el.protonFeedback.textContent="Wähle zuerst ein NMR-Signal und klicke dann auf die dazugehörige Protonengruppe in der Struktur.";
+      el.protonFeedback.textContent="Klicke auf ein NMR-Signal oder direkt auf eine Protonengruppe in der Struktur. Das zugehörige Gegenstück wird hervorgehoben.";
     }
   }
 
-  function assignProtonGroup(groupId){
-    if(!activeSignalId){
-      el.protonFeedback.className="feedback warn";
-      el.protonFeedback.textContent="Wähle zuerst eines der NMR-Signale aus.";
-      return;
-    }
-    const group=protonGroups().find(g=>g.id===groupId);
-    if(groupId===activeSignalId){
-      state.protonAssignments[activeSignalId]=groupId;
-      save();
-      el.protonFeedback.className="feedback good";
-      el.protonFeedback.textContent=group?.note||"Diese Zuordnung passt.";
-      activeSignalId=null;
-      renderProtonAssignment();
-    }else{
-      el.protonFeedback.className="feedback warn";
-      el.protonFeedback.textContent="Diese Protonengruppe passt noch nicht zu diesem Signal. Prüfe chemische Verschiebung, Integral und Multiplizität.";
-    }
-  }
 
   async function copyJournal(){const text=journalText();try{await navigator.clipboard.writeText(text);el.copyJournalBtn.textContent="Kopiert ✓";setTimeout(()=>el.copyJournalBtn.textContent="Protokoll kopieren",1200);}catch(_){alert(text);}}
   function journalText(){const c=currentCase(),t=target();return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,state.mode==="basic"?`Summenformel: ${t.formula}`:"Summenformel: nicht vorgegeben","",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
