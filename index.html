@@ -142,18 +142,31 @@
           <div id="nameFeedback" class="feedback neutral">Die Namenszuordnung wird erst nach einer passenden Strukturhypothese freigeschaltet.</div>
         </div>
 
+
+        <div id="protonAssignmentStage" class="hypothesis-block locked-panel">
+          <span class="small-label">Vertiefung · nach gelöster Struktur</span>
+          <h3>Welche Protonengruppe erzeugt welches ¹H-NMR-Signal?</h3>
+          <p class="hint">Wähle ein Signal und klicke anschließend auf die passende H-Gruppe in der Struktur. Die Aufgabe dient der Absicherung des NMR-Verständnisses und wird erst nach der richtigen Struktur freigeschaltet.</p>
+          <div id="protonSignalList" class="proton-signal-list"></div>
+          <div id="protonStructure" class="proton-structure"></div>
+          <div id="protonFeedback" class="feedback neutral">Wähle ein NMR-Signal und ordne es einer Protonengruppe zu.</div>
+        </div>
+
         <div id="referenceStage" class="hypothesis-block locked-panel">
           <span class="small-label">Nach der Hypothese</span>
-          <h3>Referenzvergleich</h3>
-          <p>Erst nach bestätigter Strukturhypothese und Namenszuordnung darf die gewählte Referenz mit den unbekannten Spektren verglichen werden.</p>
-          <button id="referenceBtn" class="secondary" type="button">Referenzvergleich öffnen</button>
+          <h3>Kandidatenvergleich</h3>
+          <p>Deine Hypothese ist bereits festgelegt. Jetzt kannst du rückblickend prüfen, warum andere angebotene Strukturen schlechter zu den Spektren passen.</p>
+          <button id="referenceBtn" class="secondary" type="button">Kandidatenvergleich öffnen</button>
           <div id="referenceFeedback" class="feedback neutral"></div>
           <div id="referenceCompare" class="reference-compare" hidden>
             <div class="reference-toolbar">
               <div>
                 <strong>Spektrenvergleich</strong>
-                <span>Die Referenz wird gestrichelt über das unbekannte Spektrum gelegt.</span>
+                <span>Wähle einen Kandidaten. Seine Referenz wird gestrichelt über das unbekannte Spektrum gelegt.</span>
               </div>
+              <label class="reference-candidate">Kandidat
+                <select id="referenceCandidateSelect"></select>
+              </label>
               <div class="reference-tabs">
                 <button class="active" data-reference-method="ir" type="button">IR</button>
                 <button data-reference-method="ms" type="button">MS</button>
@@ -161,7 +174,7 @@
               </div>
             </div>
             <canvas id="referenceCanvas" width="1000" height="390" aria-label="Referenzvergleich"></canvas>
-            <div id="referenceLegend" class="reference-legend">IR: durchgezogen = unbekannt · gestrichelt = Referenz</div>
+            <div id="referenceLegend" class="reference-legend">IR: unbekannt durchgezogen · Kandidat gestrichelt</div>
             <p class="hint">Deckungsgleiche Signale stützen die Hypothese. Im Analytik-Hub folgt zur endgültigen Bestätigung später noch der gezielte GC-Referenzstandard.</p>
           </div>
         </div>
