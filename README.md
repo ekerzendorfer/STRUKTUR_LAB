@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.1.2 – Feinschliff für NMR-Hilfen und Strukturkarten  
+**Version:** v0.1.3 – grafischer Referenzvergleich  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -66,3 +66,15 @@ Dann `http://localhost:8000/` öffnen.
 - NMR-Signalchips zeigen jetzt direkt δ-Wert, Integral und Multiplizität
 - zusätzliche kompakte Anzeige des relativen Integralmusters
 - Strukturkarten grafisch überarbeitet: klarere 2D-Darstellung, größere Abstände, weniger Überlagerung von Bindungen und Gruppenbezeichnungen
+
+
+## v0.1.3
+
+- echter Referenzvergleich nach bestätigter Strukturhypothese und Namenszuordnung
+- Umschaltung zwischen MS, IR und ¹H-NMR
+- unbekanntes Spektrum durchgezogen, bestätigte Referenz gestrichelt überlagert
+- Trial-and-Error-Schutz bleibt erhalten: Referenzvergleich ist vorher nicht zugänglich
+- IR-Funktionsgruppenbeschriftungen oberhalb der Spektrenbaseline positioniert
+- Bindungsstriche der Strukturkarten feiner und zurückhaltender dargestellt
+
+Der Referenzvergleich stützt die spektroskopische Strukturhypothese. Im späteren Analytik-Hub bleibt die endgültige Identitätsbestätigung dem gezielten GC-Referenzstandard bzw. der Aufstockung vorbehalten.
