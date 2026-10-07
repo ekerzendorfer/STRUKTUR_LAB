@@ -47,3 +47,12 @@ footer{max-width:1480px;margin:auto;padding:0 20px 24px;text-align:center;color:
 .proton-group-hit:hover rect{fill:rgba(34,184,207,.08);stroke:rgba(94,213,226,.55)}
 .proton-group-hit.active rect{fill:rgba(52,211,153,.16);stroke:#57d8b0;stroke-width:2}
 .proton-signal.active{box-shadow:inset 0 0 0 1px rgba(87,216,176,.75)}
+
+.fragment-chip-list{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.fragment-chip{display:grid;gap:2px;text-align:left;background:#13263d;color:#dce7f1}
+.fragment-chip span{font-size:.8rem;color:var(--muted)}
+.fragment-chip.active{border-color:#f5c66a;background:rgba(120,79,15,.24);box-shadow:inset 0 0 0 1px rgba(245,198,106,.45)}
+.fragment-detail{margin-top:10px;padding:12px;border:1px solid rgba(52,211,153,.45);border-radius:10px;background:rgba(6,78,59,.16);color:#dfeee8}
+.fragment-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:7px}
+.fragment-ion{font:700 1.1rem ui-monospace,SFMono-Regular,Consolas,monospace;color:#f5d58a}
+.fragment-detail p{margin:.5rem 0 0}
