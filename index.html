@@ -14,7 +14,7 @@
     <h1>STRUKTUR-LAB</h1>
     <p>M → MS → IR → ¹H-NMR → begründete Strukturhypothese</p>
   </div>
-  <div class="version">v0.1.3<br><small>Single-Mode · Prototyp</small></div>
+  <div class="version">v0.1.4<br><small>Single-Mode · Prototyp</small></div>
 </header>
 
 <main class="shell">
@@ -142,6 +142,16 @@
           <div id="nameFeedback" class="feedback neutral">Die Namenszuordnung wird erst nach einer passenden Strukturhypothese freigeschaltet.</div>
         </div>
 
+
+
+        <div id="msFragmentStage" class="hypothesis-block locked-panel">
+          <span class="small-label">Vertiefung · MS nach gelöster Struktur</span>
+          <h3>Welche diagnostischen Fragmente erklären wichtige MS-Peaks?</h3>
+          <p class="hint">Klicke auf einen markierten Peak oder auf einen Peak-Chip. Es werden bewusst nur wenige didaktisch gut begründbare Fragmentierungswege erklärt; nicht jeder kleine Peak muss eindeutig zugeordnet werden.</p>
+          <canvas id="msFragmentCanvas" width="1000" height="330" aria-label="MS-Fragment-Lernansicht"></canvas>
+          <div id="msFragmentPeakList" class="fragment-chip-list"></div>
+          <div id="msFragmentDetail" class="feedback neutral">Wähle einen diagnostischen Peak.</div>
+        </div>
 
         <div id="protonAssignmentStage" class="hypothesis-block locked-panel">
           <span class="small-label">Vertiefung · nach gelöster Struktur</span>
