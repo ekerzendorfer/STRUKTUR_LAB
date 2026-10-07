@@ -184,3 +184,20 @@ STRUKTUR_LAB/
 - Die Überlagerung dient als spektroskopische Absicherung, nicht als endgültige Identitätsbestätigung.
 - IR-Bereichsbeschriftungen werden oberhalb der hohen Transmissionsbaseline platziert.
 - Strukturkarten verwenden feinere, weniger dominante Bindungsstriche.
+
+
+### Nachtrag v0.1.4 – Butanole und MS-Fragment-Lernhilfe
+
+1-Butanol und 2-Butanol sind als vollständige kuratierte Fälle ergänzt. Sie bilden ein Isomerenpaar mit gleicher Summenformel und molarer Masse, aber deutlich unterschiedlichen ¹H-NMR- und EI-MS-Mustern.
+
+Für die MS-Vertiefung gilt:
+- erst nach gelöster Struktur freigeben
+- nur diagnostische, fachlich gut begründbare Peaks kuratieren
+- angezeigtes Objekt ist das **geladene Fragmention**
+- neutrale Begleitfragmente werden nicht als Peak detektiert
+- nicht jeder kleine Peak muss oder soll eindeutig zugeordnet werden
+
+Datenmodell im jeweiligen Stoffdatensatz:
+`ms.diagnostic_fragments[] = { mz, label, ion_formula, pathway, note }`
+
+Damit kann die Lernhilfe schrittweise auf weitere Stoffe erweitert werden, ohne einen universellen Fragmentierungsalgorithmus vorzutäuschen.
