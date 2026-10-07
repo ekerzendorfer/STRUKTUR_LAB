@@ -415,18 +415,17 @@
       return `<button type="button" class="proton-signal ${done?"done":""} ${active?"active":""}" data-signal-id="${sig.id}"><strong>Signal ${i+1}</strong><span>δ ${sig.delta.toLocaleString("de-AT")} ppm · ${sig.integration} H · ${sig.multiplicity}</span></button>`;
     }).join("");
 
-    const vb=protonViewBox();
-    let html=`<div class="proton-svg">${target().structure_svg}</div>`;
+    let markers="";
     for(const group of groups){
       for(const hotspot of group.hotspots||[]){
-        const left=((hotspot.x-vb.x)/vb.w*100).toFixed(2);
-        const top=((hotspot.y-vb.y)/vb.h*100).toFixed(2);
         const assigned=state.protonAssignments[group.id]===group.id;
         const signalIndex=signals.findIndex(s=>s.id===group.id)+1;
-        html+=`<button type="button" class="proton-hotspot ${assigned?"assigned":""}" data-proton-group="${group.id}" style="left:${left}%;top:${top}%;" title="${group.label||"Protonengruppe"}">${assigned&&signalIndex>0?"S"+signalIndex:"?"}</button>`;
+        const label=assigned&&signalIndex>0?"S"+signalIndex:"?";
+        markers+=`<g class="proton-hotspot-svg ${assigned?"assigned":""}" data-proton-group="${group.id}" role="button" aria-label="${group.label||"Protonengruppe"}"><circle cx="${hotspot.x}" cy="${hotspot.y}" r="15"></circle><text x="${hotspot.x}" y="${hotspot.y+1}" text-anchor="middle" dominant-baseline="middle">${label}</text></g>`;
       }
     }
-    el.protonStructure.innerHTML=html;
+    const annotated=(target().structure_svg||"").replace("</svg>",markers+"</svg>");
+    el.protonStructure.innerHTML=`<div class="proton-svg">${annotated}</div>`;
 
     const allDone=signals.length>0 && signals.every(s=>state.protonAssignments[s.id]===s.id);
     if(allDone){
