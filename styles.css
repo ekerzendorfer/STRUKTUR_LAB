@@ -32,3 +32,15 @@ footer{max-width:1480px;margin:auto;padding:0 20px 24px;text-align:center;color:
 .reference-tabs button.active{background:#0f7890;border-color:#2ab6ca}
 .reference-legend{margin-top:8px;color:#c5d5e6;font-size:.84rem}
 @media(max-width:700px){.reference-toolbar{align-items:flex-start;flex-direction:column}}
+
+.reference-candidate{min-width:190px;font-size:.82rem}.reference-candidate select{padding:7px 9px}
+.proton-signal-list{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.proton-signal{display:grid;gap:2px;text-align:left;background:#13263d;color:#dce7f1}
+.proton-signal span{font-size:.8rem;color:var(--muted)}
+.proton-signal.active{border-color:#22b8cf;background:#123b4b}
+.proton-signal.done{border-color:rgba(52,211,153,.6);background:rgba(6,78,59,.22)}
+.proton-structure{position:relative;max-width:760px;margin:12px auto;padding:12px;border:1px solid var(--line);border-radius:12px;background:#0b1829}
+.proton-svg svg{display:block;width:100%;height:auto;min-height:150px;max-height:250px;color:#e7eff7}
+.proton-hotspot{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;padding:0;border-radius:50%;background:#17304b;color:#dce8f5;border:2px solid #6d88a5;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.proton-hotspot:hover{border-color:#5ed5e2;background:#16465a}
+.proton-hotspot.assigned{background:#176b54;border-color:#57d8b0;color:#effff9}
