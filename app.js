@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.1.3";
+  const VERSION = "0.1.4";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -10,7 +10,7 @@
   };
   const TOOLBOX = {
     elemental:`<h3>Elementaranalyse → Verhältnisformel</h3><p>Kein Messgerät-Modul, sondern ein kompakter Rechenweg. Die Elementaranalyse liefert Massenanteile. Daraus kann eine Verhältnisformel entstehen.</p><div class="formula-steps"><div>1 · Massenanteile als Gramm in 100 g Probe lesen.</div><div>2 · Für jedes Element durch die molare Atommasse dividieren.</div><div>3 · Alle Stoffmengen durch den kleinsten Wert teilen.</div><div>4 · Auf ein kleines ganzzahliges Verhältnis bringen → Verhältnisformel.</div><div>5 · Mit der molaren Masse kann daraus gegebenenfalls die Summenformel bestimmt werden.</div></div><p class="hint">Wichtig: Eine gewöhnliche Molmasse plus niedrig aufgelöstes EI-MS bestimmt nicht allgemein eindeutig eine Summenformel. Später kann HRMS/exakte Masse ergänzt werden.</p>`,
-    ms:`<h3>MS-Basics</h3><ul><li><strong>x-Achse:</strong> m/z, also Masse-zu-Ladung.</li><li><strong>y-Achse:</strong> relative Intensität; der stärkste Peak ist der Basispeak = 100 %.</li><li>Ein Molekülion kann einen Hinweis auf die Molekülmasse geben, muss aber weder stark noch überhaupt deutlich sichtbar sein.</li><li>Fragmente liefern Strukturhinweise. Einzelne m/z-Werte sind aber keine fertige Strukturbezeichnung.</li></ul><p class="hint">Arbeitsfrage: Welche Peaks sind auffällig – und was passt oder passt nicht zu deiner bisherigen Hypothese?</p>`,
+    ms:`<h3>MS-Basics</h3><ul><li><strong>x-Achse:</strong> m/z, also Masse-zu-Ladung.</li><li><strong>y-Achse:</strong> relative Intensität; der stärkste Peak ist der Basispeak = 100 %.</li><li>Ein Molekülion kann einen Hinweis auf die Molekülmasse geben, muss aber weder stark noch überhaupt deutlich sichtbar sein.</li><li>Bei der Fragmentierung entstehen geladene und neutrale Teilchen. <strong>Detektiert wird nur das geladene Ion.</strong></li><li>Typische Wege sind z. B. α-Spaltungen neben Heteroatomen oder der Verlust kleiner neutraler Moleküle wie H₂O.</li><li>Nicht jeder kleine Peak lässt sich eindeutig nur einer Struktur zuordnen.</li></ul><p class="hint">Arbeitsfrage: Welche wenigen Peaks sind diagnostisch – und welcher plausible Fragmentierungsweg könnte zu ihnen führen?</p>`,
     ir:`<h3>IR-Basics</h3><p>Im IR werden vor allem Bindungsschwingungen sichtbar. Für eine schnelle Orientierung helfen zwei Ebenen:</p><ul><li><strong>Funktionsgruppenbereich:</strong> grob oberhalb von ca. 1500 cm⁻¹ – typische Bereiche wie O–H oder C=O.</li><li><strong>Fingerprintbereich:</strong> grob unterhalb von ca. 1500 cm⁻¹ – komplexes, substanzspezifisches Muster.</li></ul><p>Wichtige Orientierungsbereiche: O–H (Alkohol) etwa 3200–3600 cm⁻¹, Säure-OH sehr breit etwa 2500–3300 cm⁻¹, C=O oft etwa 1650–1800 cm⁻¹, C–O häufig etwa 1000–1300 cm⁻¹.</p><p class="hint">Die eingeblendeten Bereiche sind Hinweise, keine automatische Peakzuordnung.</p>`,
     nmr:`<h3>¹H-NMR-Basics</h3><p>Vier Fragen führen durch ein einfaches Protonenspektrum:</p><ul><li><strong>Wo?</strong> Chemische Verschiebung δ in ppm.</li><li><strong>Wie viel?</strong> Integration → relatives Protonenverhältnis.</li><li><strong>Wie aufgespalten?</strong> Multiplizität → Information über Nachbarprotonen.</li><li><strong>Wie viele?</strong> Zahl der Signale → Zahl unterschiedlicher Protonenumgebungen.</li></ul><p>Für einfache Systeme hilft oft die n+1-Regel. Austauschbare OH-Protonen können Lage und Aufspaltung variabel zeigen.</p><p class="hint">Orientierung: Alkyl grob 0–2,5 ppm; H an C neben O/N/Halogen oft 3–5 ppm; Aromaten häufig 6–8,5 ppm; Aldehyde etwa 9–10 ppm; Carbonsäure-OH oft 10–13 ppm.</p>`
   };
@@ -24,6 +24,7 @@
   let referenceMethod="ir";
   let referenceCandidateId=null;
   let activeSignalId=null;
+  let activeMsFragmentMz=null;
   const el={};
 
   document.addEventListener("DOMContentLoaded", init);
@@ -47,7 +48,7 @@
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
       "nmrRegionsToggle","nmrNote","classGrid","classFeedback","structureStage","structureGrid","hypothesisNote",
       "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","referenceStage",
-      "referenceBtn","referenceFeedback","referenceCompare","referenceCandidateSelect","referenceCanvas","referenceLegend","protonAssignmentStage","protonSignalList","protonStructure","protonFeedback","journalView","progressText","copyJournalBtn","resetCaseBtn"]
+      "referenceBtn","referenceFeedback","referenceCompare","referenceCandidateSelect","referenceCanvas","referenceLegend","msFragmentStage","msFragmentCanvas","msFragmentPeakList","msFragmentDetail","protonAssignmentStage","protonSignalList","protonStructure","protonFeedback","journalView","progressText","copyJournalBtn","resetCaseBtn"]
       .forEach(id=>el[id]=document.getElementById(id));
   }
 
@@ -98,6 +99,12 @@
       activeSignalId=b.dataset.protonGroup;
       renderProtonAssignment();
     });
+    el.msFragmentPeakList.addEventListener("click",e=>{
+      const b=e.target.closest("[data-fragment-mz]");
+      if(!b) return;
+      selectMsFragment(Number(b.dataset.fragmentMz));
+    });
+    el.msFragmentCanvas.addEventListener("click",handleMsFragmentCanvasClick);
     el.copyJournalBtn.addEventListener("click",copyJournal);
     el.resetCaseBtn.addEventListener("click",()=>resetCase(false));
   }
@@ -115,7 +122,7 @@
   function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
-    state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;referenceCandidateId=null;activeSignalId=null;
+    state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;referenceCandidateId=null;activeSignalId=null;activeMsFragmentMz=null;
     save();renderAll(); if(!changed) window.scrollTo({top:0,behavior:"smooth"});
   }
 
@@ -256,6 +263,7 @@
     el.referenceStage.classList.toggle("unlocked",!!state.nameVerified);
     el.referenceCompare.hidden=!referenceUnlocked;
 
+    el.msFragmentStage.classList.toggle("unlocked",!!state.nameVerified);
     el.protonAssignmentStage.classList.toggle("unlocked",!!state.nameVerified);
     if(referenceUnlocked){
       renderReferenceCandidateOptions();
@@ -268,7 +276,7 @@
         ? "Die Namenszuordnung ist bestätigt. Du kannst jetzt den Kandidatenvergleich öffnen."
         : "";
     }
-    if(state.nameVerified) requestAnimationFrame(renderProtonAssignment);
+    if(state.nameVerified) requestAnimationFrame(()=>{renderMsFragmentLearning();renderProtonAssignment();});
   }
 
   function canvasPoint(evt,canvas){const r=canvas.getBoundingClientRect();return {x:(evt.clientX-r.left)*canvas.width/r.width,y:(evt.clientY-r.top)*canvas.height/r.height};}
@@ -442,6 +450,74 @@
     }
   }
 
+
+  function msDiagnosticFragments(){
+    return target().ms?.diagnostic_fragments||[];
+  }
+
+  function renderMsFragmentLearning(){
+    if(!state.nameVerified || !el.msFragmentStage) return;
+    const fragments=msDiagnosticFragments();
+    if(!fragments.length){
+      el.msFragmentDetail.className="feedback neutral";
+      el.msFragmentDetail.textContent="Für diesen Stoff ist die MS-Fragment-Lernhilfe noch nicht kuratiert.";
+      el.msFragmentPeakList.innerHTML="";
+      drawMsFragmentCanvas();
+      return;
+    }
+
+    if(activeMsFragmentMz!==null && !fragments.some(f=>f.mz===activeMsFragmentMz)) activeMsFragmentMz=null;
+    el.msFragmentPeakList.innerHTML=fragments.map(f=>`<button type="button" class="fragment-chip ${activeMsFragmentMz===f.mz?"active":""}" data-fragment-mz="${f.mz}"><strong>m/z ${f.mz}</strong><span>${escapeHtml(f.label)}</span></button>`).join("");
+    drawMsFragmentCanvas();
+
+    const f=fragments.find(x=>x.mz===activeMsFragmentMz);
+    if(f){
+      el.msFragmentDetail.className="fragment-detail";
+      el.msFragmentDetail.innerHTML=`<div class="fragment-head"><strong>m/z ${f.mz} · ${escapeHtml(f.label)}</strong><span class="fragment-ion">${escapeHtml(f.ion_formula||"")}</span></div><div><strong>Weg:</strong> ${escapeHtml(f.pathway||"")}</div><p>${escapeHtml(f.note||"")}</p><p class="hint">Im Massenspektrometer erscheint dieser Peak, weil das angegebene Fragment geladen ist. Das gleichzeitig entstehende neutrale Teilchen wird nicht detektiert.</p>`;
+    }else{
+      el.msFragmentDetail.className="feedback neutral";
+      el.msFragmentDetail.textContent="Wähle einen markierten diagnostischen Peak. Es werden bewusst nur wenige gut begründbare Fragmente erklärt.";
+    }
+  }
+
+  function drawMsFragmentCanvas(){
+    const canvas=el.msFragmentCanvas,ctx=canvas.getContext("2d"),peaks=target().ms?.peaks||[],diagnostic=msDiagnosticFragments();
+    baseCanvas(ctx,canvas);
+    const p={l:58,r:20,t:24,b:48},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b,maxMz=Math.max(100,...peaks.map(x=>x.mz+8));
+    gridAxes(ctx,p,w,h,"m/z","rel. Intensität / %",0,maxMz,0,100,false);
+
+    peaks.forEach(pk=>{
+      const isDiagnostic=diagnostic.some(f=>f.mz===pk.mz);
+      const active=activeMsFragmentMz===pk.mz;
+      ctx.strokeStyle=active?"#f5c66a":isDiagnostic?"#67e8f9":"#45627f";
+      ctx.lineWidth=active?5:isDiagnostic?3:1.5;
+      ctx.globalAlpha=isDiagnostic?1:.55;
+      const x=p.l+w*pk.mz/maxMz,y=p.t+h-h*pk.intensity/100;
+      ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,y);ctx.stroke();
+      if(isDiagnostic){
+        ctx.fillStyle=active?"#f5c66a":"#9cecf3";ctx.globalAlpha=1;ctx.font="12px system-ui";ctx.textAlign="center";ctx.fillText(String(pk.mz),x,Math.max(p.t+12,y-7));
+      }
+    });
+    ctx.globalAlpha=1;ctx.textAlign="left";
+    canvas._fragmentPlot={p,w,h,maxMz,diagnostic};
+  }
+
+  function selectMsFragment(mz){
+    activeMsFragmentMz=mz;
+    renderMsFragmentLearning();
+  }
+
+  function handleMsFragmentCanvasClick(evt){
+    const o=el.msFragmentCanvas._fragmentPlot;
+    if(!o) return;
+    const q=canvasPoint(evt,el.msFragmentCanvas);
+    let best=null,dist=22;
+    for(const f of o.diagnostic){
+      const x=o.p.l+o.w*f.mz/o.maxMz,d=Math.abs(q.x-x);
+      if(d<dist){dist=d;best=f;}
+    }
+    if(best) selectMsFragment(best.mz);
+  }
 
   async function copyJournal(){const text=journalText();try{await navigator.clipboard.writeText(text);el.copyJournalBtn.textContent="Kopiert ✓";setTimeout(()=>el.copyJournalBtn.textContent="Protokoll kopieren",1200);}catch(_){alert(text);}}
   function journalText(){const c=currentCase(),t=target();return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,state.mode==="basic"?`Summenformel: ${t.formula}`:"Summenformel: nicht vorgegeben","",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
