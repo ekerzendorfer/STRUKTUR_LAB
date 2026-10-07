@@ -14,7 +14,7 @@
     <h1>STRUKTUR-LAB</h1>
     <p>M → MS → IR → ¹H-NMR → begründete Strukturhypothese</p>
   </div>
-  <div class="version">v0.1.2<br><small>Single-Mode · Prototyp</small></div>
+  <div class="version">v0.1.3<br><small>Single-Mode · Prototyp</small></div>
 </header>
 
 <main class="shell">
@@ -145,9 +145,25 @@
         <div id="referenceStage" class="hypothesis-block locked-panel">
           <span class="small-label">Nach der Hypothese</span>
           <h3>Referenzvergleich</h3>
-          <p>Erst jetzt darf das Spektrum der gewählten Referenz als Absicherung eingeblendet werden. In v0.1.2 wird die Freigabe demonstriert; die vollständige Überlagerungsansicht folgt im nächsten Feinschliff.</p>
-          <button id="referenceBtn" class="secondary" type="button">Referenzvergleich freischalten</button>
+          <p>Erst nach bestätigter Strukturhypothese und Namenszuordnung darf die gewählte Referenz mit den unbekannten Spektren verglichen werden.</p>
+          <button id="referenceBtn" class="secondary" type="button">Referenzvergleich öffnen</button>
           <div id="referenceFeedback" class="feedback neutral"></div>
+          <div id="referenceCompare" class="reference-compare" hidden>
+            <div class="reference-toolbar">
+              <div>
+                <strong>Spektrenvergleich</strong>
+                <span>Die Referenz wird gestrichelt über das unbekannte Spektrum gelegt.</span>
+              </div>
+              <div class="reference-tabs">
+                <button class="active" data-reference-method="ir" type="button">IR</button>
+                <button data-reference-method="ms" type="button">MS</button>
+                <button data-reference-method="nmr" type="button">¹H-NMR</button>
+              </div>
+            </div>
+            <canvas id="referenceCanvas" width="1000" height="390" aria-label="Referenzvergleich"></canvas>
+            <div id="referenceLegend" class="reference-legend">IR: durchgezogen = unbekannt · gestrichelt = Referenz</div>
+            <p class="hint">Deckungsgleiche Signale stützen die Hypothese. Im Analytik-Hub folgt zur endgültigen Bestätigung später noch der gezielte GC-Referenzstandard.</p>
+          </div>
         </div>
       </div>
     </section>
