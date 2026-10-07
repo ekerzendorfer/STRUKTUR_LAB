@@ -78,3 +78,13 @@ Dann `http://localhost:8000/` öffnen.
 - Bindungsstriche der Strukturkarten feiner und zurückhaltender dargestellt
 
 Der Referenzvergleich stützt die spektroskopische Strukturhypothese. Im späteren Analytik-Hub bleibt die endgültige Identitätsbestätigung dem gezielten GC-Referenzstandard bzw. der Aufstockung vorbehalten.
+
+
+### v0.1.3 – Kandidatenvergleich & Protonengruppen
+
+- der bisherige reine Referenzvergleich wurde zum retrospektiven **Kandidatenvergleich** erweitert
+- nach festgelegter Lösung können alternative Strukturkandidaten mit dem unbekannten MS-, IR- und ¹H-NMR-Spektrum verglichen werden
+- nicht vollständig kuratierte Kandidaten bleiben sichtbar, sind aber im Spektrenvergleich deaktiviert
+- Protonengruppen-Zuordnung für Ethanol, Dimethylether und Ethylacetat
+- NMR-Signal auswählen → passende H-Gruppe in der 2D-Struktur anklicken
+- nach korrekter Zuordnung kurze fachliche Erklärung zu δ, Integral und Multiplizität
