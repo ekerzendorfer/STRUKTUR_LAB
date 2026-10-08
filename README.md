@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.1.5 – gemeinsame Spektrenwerkstatt  
+**Version:** v0.2.0 – GC-Peak aus dem Analytik-Hub  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -124,3 +124,18 @@ Kandidatenvergleich:
 - Umschaltung zwischen MS, IR und ¹H-NMR ohne Wechsel des Arbeitsbereichs
 
 Die ursprüngliche Analysefolge M → MS → IR → ¹H-NMR → Hypothese bleibt unverändert. Die Spektrenwerkstatt ist die gemeinsame Vertiefungs- und Vergleichsebene nach bestätigter Struktur.
+
+
+## v0.2.0 – GC-Peak aus dem Analytik-Hub
+
+Der Single-Mode bleibt unverändert. Ein Aufruf mit `?bridge=1&run=...` aktiviert den Hub-Modus.
+
+Im Hub-Modus:
+- stammt der Auftrag aus einem konkreten GC-RESULT und einer konkreten Peak-ID
+- werden GC-Result-ID und Peak-ID technisch über die Bridge referenziert
+- bleibt die wahre Peak-Identität im SchülerInnen-UI verborgen
+- wird der passende kuratierte Strukturfall intern gewählt
+- verwendet der VCÖ-01-Workflow zunächst den Basismodus mit Summenformelhilfe
+- wird `Hypothese an Hub übergeben` erst nach korrekter Struktur- und Namenszuordnung aktiv
+- das zurückgegebene RESULT erhält `identity_status: supported`, nicht `confirmed`
+- die endgültige Bestätigung ist ausdrücklich dem späteren gezielten GC-Referenzstandard vorbehalten

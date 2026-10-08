@@ -219,3 +219,25 @@ Methodenspezifische Lernfunktionen:
 - ¹H-NMR: Signal ↔ Protonengruppe mit gemeinsamer Hervorhebung
 
 Der spätere direkte Klick auf Multipletts im NMR-Spektrum bleibt als erweiterte Stufe separat vorgemerkt.
+
+
+### Nachtrag v0.2.0 – Analytik-Hub / GC-Peak
+
+STRUKTUR-LAB kann einen konkreten Peak eines vorgelagerten GC-RESULTs bearbeiten.
+
+Bridge-Kontext:
+- `source_result_id` = GC-RESULT
+- `peak_id` = P1/P2/...
+- `sample_id` = zugehörige Destillationsfraktion
+- verborgene interne Zielsubstanz zur Auswahl des kuratierten Falls
+
+Im SchülerInnen-UI erscheinen nur Peak-ID, öffentliche GC-Messdaten und der Strukturauftrag. Die wahre Identität bleibt verborgen.
+
+Rückgabe:
+- `analysis_type: STRUCTURE_ELUCIDATION`
+- `identity_status: supported`
+- Hypothese mit Stoffklasse, Struktur/CORE-ID und Name
+- Analysejournal als `student_interpretation`
+- `source_result_id + peak_id` zur Rückverknüpfung
+
+`confirmed` wird bewusst nicht im STRUKTUR-LAB vergeben. Die endgültige Identitätsbestätigung erfolgt später über einen gezielten GC-Referenzstandard bzw. Aufstockung.

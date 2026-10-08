@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.1.5";
+  const VERSION = "0.2.0";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -27,9 +27,32 @@
   let activeMsFragmentMz=null;
   let workbenchMethod="ms";
   let workbenchMode="learn";
+  let bridgeMode=bridgeRequested();
+  let bridgeRun=null;
+  let bridgeInput=null;
   const el={};
 
   document.addEventListener("DOMContentLoaded", init);
+
+  function bridgeRequested(){
+    const params=new URLSearchParams(window.location.search);
+    return params.get("bridge")==="1";
+  }
+
+  function storageKey(){
+    return bridgeMode && bridgeRun ? STORAGE_KEY+"_HUB_"+bridgeRun.run_id : STORAGE_KEY;
+  }
+
+  function loadAnalytikBridgeScript(){
+    if(window.AnalytikBridge) return Promise.resolve(window.AnalytikBridge);
+    return new Promise((resolve,reject)=>{
+      const script=document.createElement("script");
+      script.src=new URL("../CHEMIE_ANALYTIK_HUB/bridge/chemie-analytik-bridge.js",window.location.href).toString();
+      script.onload=()=>window.AnalytikBridge?resolve(window.AnalytikBridge):reject(new Error("Bridge-API fehlt."));
+      script.onerror=()=>reject(new Error("CHEMIE_ANALYTIK_BRIDGE konnte nicht geladen werden."));
+      document.head.appendChild(script);
+    });
+  }
 
   async function init(){
     bindEls();
@@ -40,7 +63,8 @@
     db={substances:s.substances,cases:c.cases,classes:c.classes};
     populateCases();
     bindEvents();
-    loadOrReset();
+    if(bridgeMode) await initAnalytikBridge();
+    else loadOrReset();
     renderAll();
   }
 
@@ -53,7 +77,8 @@
       "workbenchCandidateWrap","workbenchCandidateSelect","workbenchCanvas","workbenchLegend","workbenchLearnPanel",
       "workbenchMsPanel","workbenchMsPeakList","workbenchMsDetail","workbenchIrPanel","workbenchIrGroupsToggle","workbenchIrFingerprintToggle",
       "workbenchNmrPanel","workbenchNmrSignalList","workbenchNmrStructure","workbenchNmrFeedback","workbenchCompareHint",
-      "journalView","progressText","copyJournalBtn","resetCaseBtn"]
+      "journalView","progressText","copyJournalBtn","resetCaseBtn","bridgeContext","bridgeSampleLabel","bridgePeakLabel",
+      "bridgeMessage","bridgeSubmitBtn","bridgeReturnBtn","modeLabel"]
       .forEach(id=>el[id]=document.getElementById(id));
   }
 
@@ -122,23 +147,119 @@
     el.workbenchCanvas.addEventListener("click",handleWorkbenchCanvasClick);
     el.copyJournalBtn.addEventListener("click",copyJournal);
     el.resetCaseBtn.addEventListener("click",()=>resetCase(false));
+    el.bridgeSubmitBtn.addEventListener("click",sendBridgeResult);
+    el.bridgeReturnBtn.addEventListener("click",()=>{
+      if(window.AnalytikBridge&&bridgeRun) window.AnalytikBridge.returnToHub(bridgeRun);
+    });
   }
 
   function loadOrReset(){
     const wanted={caseId:el.caseSelect.value,mode:el.modeSelect.value};
     try{
-      const old=JSON.parse(localStorage.getItem(STORAGE_KEY));
+      const old=JSON.parse(localStorage.getItem(storageKey()));
       if(old&&old.caseId===wanted.caseId&&old.mode===wanted.mode){
         state=old;
         if(!Array.isArray(state.candidateOrder) || state.candidateOrder.length!==currentCaseIdsFor(wanted.caseId).length){
           state.candidateOrder=shuffledCandidateIds(wanted.caseId);
         }
         currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;workbenchMethod=old.workbenchMethod||"ms";workbenchMode=old.workbenchMode||"learn";
-        localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+        localStorage.setItem(storageKey(),JSON.stringify(state));
         return;
       }
     }catch(_){ }
     state=freshState(wanted.caseId,wanted.mode);
+  }
+
+  async function initAnalytikBridge(){
+    const params=new URLSearchParams(window.location.search);
+    const runId=params.get("run");
+    try{
+      if(!runId) throw new Error("run-Parameter fehlt.");
+      await loadAnalytikBridgeScript();
+      const run=window.AnalytikBridge.getRun(runId);
+      if(!run) throw new Error("Der Analyse-Run wurde nicht gefunden.");
+      if(run.app_id!=="STRUKTUR_LAB") throw new Error("Der Run ist nicht für STRUKTUR_LAB bestimmt.");
+      if(!run.input || run.input.mode!=="gc_peak") throw new Error("Unbekannter Strukturauftrag.");
+
+      bridgeRun=run;
+      bridgeInput=run.input;
+      const targetId=bridgeInput.target_substance_id;
+      const matchingCase=db.cases.find(c=>c.target_substance_id===targetId);
+      if(!matchingCase) throw new Error("Für den GC-Peak ist noch kein kuratierter Strukturfall verfügbar.");
+
+      const mode=bridgeInput.structure_mode==="expert"?"expert":"basic";
+      el.caseSelect.value=matchingCase.id;
+      el.modeSelect.value=mode;
+      el.caseSelect.disabled=true;
+      el.modeSelect.disabled=true;
+
+      loadOrReset();
+      if(state.caseId!==matchingCase.id || state.mode!==mode){
+        state=freshState(matchingCase.id,mode);
+      }
+
+      if(el.modeLabel) el.modeLabel.textContent="Analytik-Hub";
+      el.bridgeContext.classList.add("active");
+      el.bridgeSampleLabel.textContent=bridgeInput.display_label||"GC-Peak";
+      const peak=bridgeInput.source_peak||{};
+      const rt=Number.isFinite(Number(peak.retention_time_min)) ? Number(peak.retention_time_min).toFixed(2).replace(".",",")+" min" : "–";
+      const area=Number.isFinite(Number(peak.area_percent)) ? Number(peak.area_percent).toFixed(1).replace(".",",")+" %" : "–";
+      el.bridgePeakLabel.textContent=`${run.peak_id||"Peak"} · tR ${rt} · Fläche ${area}`;
+      el.bridgeMessage.textContent="Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
+      updateBridgeControls();
+    }catch(err){
+      el.bridgeContext.classList.add("active","error");
+      el.bridgeMessage.textContent="Hub-Verbindung fehlgeschlagen: "+err.message;
+      el.bridgeSubmitBtn.disabled=true;
+    }
+  }
+
+  function updateBridgeControls(){
+    if(!bridgeMode||!el.bridgeSubmitBtn) return;
+    el.bridgeSubmitBtn.disabled=!(state&&state.nameVerified&&selectedStructure===target()?.id);
+  }
+
+  function sendBridgeResult(){
+    if(!bridgeMode||!bridgeRun||!window.AnalytikBridge||!state.nameVerified) return;
+    const t=target();
+    const result={
+      result_id:"RES_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      run_id:bridgeRun.run_id,
+      case_id:bridgeRun.case_id,
+      sample_id:bridgeRun.sample_id,
+      app_id:"STRUKTUR_LAB",
+      app_version:VERSION,
+      analysis_type:"STRUCTURE_ELUCIDATION",
+      status:"completed",
+      source:"app",
+      source_result_id:bridgeRun.source_result_id||null,
+      peak_id:bridgeRun.peak_id||null,
+      measurement:{
+        methods:["M","EI_MS","IR","H1_NMR"],
+        molar_mass_g_mol:t.mass_measurement?.value??null
+      },
+      evaluation:{
+        identity_status:"supported",
+        hypothesis:{
+          substance_id:t.id,
+          name_de:t.name_de,
+          formula:t.formula,
+          primary_class:t.primary_class
+        },
+        confirmation_required:"GC_REFERENCE_STANDARD"
+      },
+      student_interpretation:{
+        selected_class:selectedClass,
+        selected_structure_id:selectedStructure,
+        entered_name:el.nameInput.value,
+        reasoning:state.notes.hypothesisNote||"",
+        journal:Object.assign({},state.notes)
+      },
+      created_at:new Date().toISOString()
+    };
+
+    const completed=window.AnalytikBridge.completeRun(bridgeRun.run_id,result);
+    window.AnalytikBridge.returnToHub(completed);
   }
 
   function shuffledCandidateIds(caseId){
@@ -152,7 +273,7 @@
   }
 
   function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn"};}
-  function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;state.workbenchMethod=workbenchMethod;state.workbenchMode=workbenchMode;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+  function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;state.workbenchMethod=workbenchMethod;state.workbenchMode=workbenchMode;localStorage.setItem(storageKey(),JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
     state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;referenceCandidateId=null;activeSignalId=null;activeMsFragmentMz=null;workbenchMethod="ms";workbenchMode="learn";
@@ -166,12 +287,17 @@
 
   function renderAll(){
     el.modeSelect.value=state.mode;el.caseSelect.value=state.caseId;
-    const c=currentCase(),t=target();el.caseLabel.textContent=c.label_de;el.caseIntro.textContent=c.intro_de;
+    const c=currentCase(),t=target();
+    el.caseLabel.textContent=bridgeMode&&bridgeRun ? (bridgeRun.peak_id||"GC-Peak")+" untersuchen" : c.label_de;
+    el.caseIntro.textContent=bridgeMode&&bridgeInput
+      ? (bridgeInput.assignment_text||"Struktur eines unbekannten GC-Peaks aus spektroskopischen Daten erschließen.")
+      : c.intro_de;
     el.massValue.textContent=`${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty}`;
     el.formulaBox.textContent=state.mode==="basic"?`Summenformel: ${t.formula}`:"Summenformel im Expertenmodus nicht vorgegeben";
     el.formulaBox.classList.toggle("muted",state.mode!=="basic");
     Object.keys(state.notes).forEach(k=>{if(el[k])el[k].value=state.notes[k]||"";});
     renderStepper();openStage(currentStage,true);renderClassGrid();renderStructures();renderHypothesisState();renderJournal();
+    updateBridgeControls();
     requestAnimationFrame(()=>{drawMs();drawIr();drawNmr();});
   }
 
@@ -270,6 +396,7 @@
       el.nameFeedback.className="feedback good";
       el.nameFeedback.textContent=`Namenszuordnung passt: ${target().name_de}. Die Spektrenwerkstatt ist jetzt freigeschaltet.`;
       renderHypothesisState();
+      updateBridgeControls();
     }else{
       el.nameFeedback.className="feedback warn";
       el.nameFeedback.textContent="Der Name passt noch nicht zur ausgewählten Struktur. Prüfe Stoffklasse und systematische bzw. gebräuchliche Benennung.";
@@ -322,6 +449,7 @@
       ensureReferenceCandidate();
       requestAnimationFrame(renderWorkbench);
     }
+    updateBridgeControls();
   }
 
   function canvasPoint(evt,canvas){const r=canvas.getBoundingClientRect();return {x:(evt.clientX-r.left)*canvas.width/r.width,y:(evt.clientY-r.top)*canvas.height/r.height};}
