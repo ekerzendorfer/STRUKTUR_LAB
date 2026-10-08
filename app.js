@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.1.4";
+  const VERSION = "0.1.5";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -25,6 +25,8 @@
   let referenceCandidateId=null;
   let activeSignalId=null;
   let activeMsFragmentMz=null;
+  let workbenchMethod="ms";
+  let workbenchMode="learn";
   const el={};
 
   document.addEventListener("DOMContentLoaded", init);
@@ -47,8 +49,11 @@
       "stageKicker","stageTitle","stageHelpBtn","massValue","formulaBox","massNote","msCanvas","msReadout","msNote",
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
       "nmrRegionsToggle","nmrNote","classGrid","classFeedback","structureStage","structureGrid","hypothesisNote",
-      "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","referenceStage",
-      "referenceBtn","referenceFeedback","referenceCompare","referenceCandidateSelect","referenceCanvas","referenceLegend","msFragmentStage","msFragmentCanvas","msFragmentPeakList","msFragmentDetail","protonAssignmentStage","protonSignalList","protonStructure","protonFeedback","journalView","progressText","copyJournalBtn","resetCaseBtn"]
+      "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","spectraWorkbenchStage",
+      "workbenchCandidateWrap","workbenchCandidateSelect","workbenchCanvas","workbenchLegend","workbenchLearnPanel",
+      "workbenchMsPanel","workbenchMsPeakList","workbenchMsDetail","workbenchIrPanel","workbenchIrGroupsToggle","workbenchIrFingerprintToggle",
+      "workbenchNmrPanel","workbenchNmrSignalList","workbenchNmrStructure","workbenchNmrFeedback","workbenchCompareHint",
+      "journalView","progressText","copyJournalBtn","resetCaseBtn"]
       .forEach(id=>el[id]=document.getElementById(id));
   }
 
@@ -76,35 +81,45 @@
     el.nmrCanvas.addEventListener("click",handleNmrClick);
     el.submitHypothesisBtn.addEventListener("click",submitHypothesis);
     el.checkNameBtn.addEventListener("click",checkName);
-    el.referenceBtn.addEventListener("click",unlockReference);
-    document.querySelectorAll("[data-reference-method]").forEach(b=>b.addEventListener("click",()=>{
-      referenceMethod=b.dataset.referenceMethod;
-      renderReferenceComparison();
+    document.querySelectorAll("[data-workbench-method]").forEach(b=>b.addEventListener("click",()=>{
+      workbenchMethod=b.dataset.workbenchMethod;
+      state.workbenchMethod=workbenchMethod;
+      save();
+      renderWorkbench();
     }));
-    el.referenceCandidateSelect.addEventListener("change",()=>{
-      referenceCandidateId=el.referenceCandidateSelect.value;
+    document.querySelectorAll("[data-workbench-mode]").forEach(b=>b.addEventListener("click",()=>{
+      workbenchMode=b.dataset.workbenchMode;
+      state.workbenchMode=workbenchMode;
+      save();
+      renderWorkbench();
+    }));
+    el.workbenchCandidateSelect.addEventListener("change",()=>{
+      referenceCandidateId=el.workbenchCandidateSelect.value;
       state.referenceCandidateId=referenceCandidateId;
       save();
-      renderReferenceComparison();
+      renderWorkbench();
     });
-    el.protonSignalList.addEventListener("click",e=>{
+    el.workbenchIrGroupsToggle.addEventListener("change",renderWorkbench);
+    el.workbenchIrFingerprintToggle.addEventListener("change",renderWorkbench);
+    el.workbenchMsPeakList.addEventListener("click",e=>{
+      const b=e.target.closest("[data-fragment-mz]");
+      if(!b) return;
+      activeMsFragmentMz=Number(b.dataset.fragmentMz);
+      renderWorkbench();
+    });
+    el.workbenchNmrSignalList.addEventListener("click",e=>{
       const b=e.target.closest("[data-signal-id]");
       if(!b) return;
       activeSignalId=b.dataset.signalId;
-      renderProtonAssignment();
+      renderWorkbench();
     });
-    el.protonStructure.addEventListener("click",e=>{
+    el.workbenchNmrStructure.addEventListener("click",e=>{
       const b=e.target.closest("[data-proton-group]");
       if(!b) return;
       activeSignalId=b.dataset.protonGroup;
-      renderProtonAssignment();
+      renderWorkbench();
     });
-    el.msFragmentPeakList.addEventListener("click",e=>{
-      const b=e.target.closest("[data-fragment-mz]");
-      if(!b) return;
-      selectMsFragment(Number(b.dataset.fragmentMz));
-    });
-    el.msFragmentCanvas.addEventListener("click",handleMsFragmentCanvasClick);
+    el.workbenchCanvas.addEventListener("click",handleWorkbenchCanvasClick);
     el.copyJournalBtn.addEventListener("click",copyJournal);
     el.resetCaseBtn.addEventListener("click",()=>resetCase(false));
   }
@@ -118,7 +133,7 @@
         if(!Array.isArray(state.candidateOrder) || state.candidateOrder.length!==currentCaseIdsFor(wanted.caseId).length){
           state.candidateOrder=shuffledCandidateIds(wanted.caseId);
         }
-        currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;
+        currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;workbenchMethod=old.workbenchMethod||"ms";workbenchMode=old.workbenchMode||"learn";
         localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
         return;
       }
@@ -136,11 +151,11 @@
     return ids;
   }
 
-  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId)};}
-  function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn"};}
+  function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;state.workbenchMethod=workbenchMethod;state.workbenchMode=workbenchMode;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
-    state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;referenceCandidateId=null;activeSignalId=null;activeMsFragmentMz=null;
+    state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;referenceCandidateId=null;activeSignalId=null;activeMsFragmentMz=null;workbenchMethod="ms";workbenchMode="learn";
     save();renderAll(); if(!changed) window.scrollTo({top:0,behavior:"smooth"});
   }
 
@@ -241,9 +256,12 @@
     const ok=(target().synonyms||[target().name_de]).some(x=>normalizeName(x)===normalizeName(el.nameInput.value));
     if(ok){
       state.nameVerified=true;
+      referenceUnlocked=true;
+      state.referenceUnlocked=true;
+      ensureReferenceCandidate();
       save();
       el.nameFeedback.className="feedback good";
-      el.nameFeedback.textContent=`Namenszuordnung passt: ${target().name_de}. Die spektroskopischen Lern- und Vergleichsfunktionen sind jetzt freigeschaltet.`;
+      el.nameFeedback.textContent=`Namenszuordnung passt: ${target().name_de}. Die Spektrenwerkstatt ist jetzt freigeschaltet.`;
       renderHypothesisState();
     }else{
       el.nameFeedback.className="feedback warn";
@@ -266,12 +284,12 @@
   function renderReferenceCandidateOptions(){
     ensureReferenceCandidate();
     const candidates=availableReferenceCandidates();
-    el.referenceCandidateSelect.innerHTML=candidates.map(s=>{
+    el.workbenchCandidateSelect.innerHTML=candidates.map(s=>{
       const ready=!!(s.ms?.peaks?.length && s.ir?.bands?.length && s.h1_nmr?.signals?.length);
       const suffix=s.id===target().id?" · eigene Hypothese":"";
       return `<option value="${s.id}" ${ready?"":"disabled"}>${s.name_de}${suffix}${ready?"":" · Spektren folgen"}</option>`;
     }).join("");
-    el.referenceCandidateSelect.value=referenceCandidateId;
+    el.workbenchCandidateSelect.value=referenceCandidateId;
   }
 
   function unlockReference(){
@@ -291,23 +309,12 @@
     const structureOk=selectedStructure===target().id;
     el.structureStage.classList.toggle("unlocked",classOk);
     el.nameStage.classList.toggle("unlocked",structureOk);
-    el.referenceStage.classList.toggle("unlocked",!!state.nameVerified);
-    el.referenceCompare.hidden=!referenceUnlocked;
+    el.spectraWorkbenchStage.classList.toggle("unlocked",!!state.nameVerified);
 
-    el.msFragmentStage.classList.toggle("unlocked",!!state.nameVerified);
-    el.protonAssignmentStage.classList.toggle("unlocked",!!state.nameVerified);
-    if(referenceUnlocked){
-      renderReferenceCandidateOptions();
-      el.referenceFeedback.className="feedback good";
-      el.referenceFeedback.textContent="Kandidatenvergleich ist freigeschaltet. Deine Lösung steht fest; vergleiche nun gezielt mit Alternativen.";
-      requestAnimationFrame(renderReferenceComparison);
-    }else{
-      el.referenceFeedback.className="feedback neutral";
-      el.referenceFeedback.textContent=state.nameVerified
-        ? "Die Namenszuordnung ist bestätigt. Du kannst jetzt den Kandidatenvergleich öffnen."
-        : "";
+    if(state.nameVerified){
+      ensureReferenceCandidate();
+      requestAnimationFrame(renderWorkbench);
     }
-    if(state.nameVerified) requestAnimationFrame(()=>{renderMsFragmentLearning();renderProtonAssignment();});
   }
 
   function canvasPoint(evt,canvas){const r=canvas.getBoundingClientRect();return {x:(evt.clientX-r.left)*canvas.width/r.width,y:(evt.clientY-r.top)*canvas.height/r.height};}
@@ -411,6 +418,180 @@
     trace(unknown,"#6ae2ec",4,[],.68);
     trace(reference,"#f5c66a",2.2,[7,5],1);
     ctx.globalAlpha=1;ctx.setLineDash([]);
+  }
+
+  function renderWorkbench(){
+    if(!state.nameVerified || !el.spectraWorkbenchStage) return;
+
+    document.querySelectorAll("[data-workbench-method]").forEach(b=>b.classList.toggle("active",b.dataset.workbenchMethod===workbenchMethod));
+    document.querySelectorAll("[data-workbench-mode]").forEach(b=>b.classList.toggle("active",b.dataset.workbenchMode===workbenchMode));
+
+    const compare=workbenchMode==="compare";
+    el.workbenchCandidateWrap.hidden=!compare;
+    el.workbenchCompareHint.hidden=!compare;
+    el.workbenchLearnPanel.hidden=compare;
+
+    if(compare){
+      renderReferenceCandidateOptions();
+      renderWorkbenchComparison();
+      return;
+    }
+
+    el.workbenchMsPanel.hidden=workbenchMethod!=="ms";
+    el.workbenchIrPanel.hidden=workbenchMethod!=="ir";
+    el.workbenchNmrPanel.hidden=workbenchMethod!=="nmr";
+
+    if(workbenchMethod==="ms") renderWorkbenchMsLearning();
+    else if(workbenchMethod==="ir") renderWorkbenchIrLearning();
+    else renderWorkbenchNmrLearning();
+  }
+
+  function renderWorkbenchComparison(){
+    const ref=referenceSubstance(),unknown=target(),ctx=el.workbenchCanvas.getContext("2d");
+    if(workbenchMethod==="ms"){
+      drawReferenceMs(ctx,el.workbenchCanvas,unknown.ms?.peaks||[],ref.ms?.peaks||[]);
+      el.workbenchLegend.textContent=`MS: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
+    }else if(workbenchMethod==="nmr"){
+      drawReferenceNmr(ctx,el.workbenchCanvas,unknown.h1_nmr?.signals||[],ref.h1_nmr?.signals||[]);
+      el.workbenchLegend.textContent=`¹H-NMR: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
+    }else{
+      drawReferenceIr(ctx,el.workbenchCanvas,unknown.ir?.bands||[],ref.ir?.bands||[]);
+      el.workbenchLegend.textContent=`IR: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
+    }
+    el.workbenchCanvas._workbenchPlot={type:"compare"};
+  }
+
+  function renderWorkbenchMsLearning(){
+    const canvas=el.workbenchCanvas,ctx=canvas.getContext("2d"),peaks=target().ms?.peaks||[],diagnostic=msDiagnosticFragments();
+    baseCanvas(ctx,canvas);
+    const p={l:62,r:22,t:28,b:52},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b,maxMz=Math.max(100,...peaks.map(x=>x.mz+8));
+    gridAxes(ctx,p,w,h,"m/z","rel. Intensität / %",0,maxMz,0,100,false);
+
+    if(activeMsFragmentMz!==null && !diagnostic.some(f=>f.mz===activeMsFragmentMz)) activeMsFragmentMz=null;
+    peaks.forEach(pk=>{
+      const isDiagnostic=diagnostic.some(f=>f.mz===pk.mz),active=activeMsFragmentMz===pk.mz;
+      ctx.strokeStyle=active?"#f5c66a":isDiagnostic?"#67e8f9":"#45627f";
+      ctx.lineWidth=active?5:isDiagnostic?3:1.5;
+      ctx.globalAlpha=isDiagnostic?1:.55;
+      const x=p.l+w*pk.mz/maxMz,y=p.t+h-h*pk.intensity/100;
+      ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,y);ctx.stroke();
+      if(isDiagnostic){
+        ctx.fillStyle=active?"#f5c66a":"#9cecf3";ctx.globalAlpha=1;ctx.font="12px system-ui";ctx.textAlign="center";
+        ctx.fillText(String(pk.mz),x,Math.max(p.t+12,y-7));
+      }
+    });
+    ctx.globalAlpha=1;ctx.textAlign="left";
+    canvas._workbenchPlot={type:"ms-learn",p,w,h,maxMz,diagnostic};
+    el.workbenchLegend.textContent=diagnostic.length?"MS-Lernansicht · diagnostische Peaks hervorgehoben":"MS-Lernansicht · noch keine diagnostischen Fragmente kuratiert";
+
+    el.workbenchMsPeakList.innerHTML=diagnostic.map(f=>`<button type="button" class="fragment-chip ${activeMsFragmentMz===f.mz?"active":""}" data-fragment-mz="${f.mz}"><strong>m/z ${f.mz}</strong><span>${escapeHtml(f.label)}</span></button>`).join("");
+    const frag=diagnostic.find(x=>x.mz===activeMsFragmentMz);
+    if(!diagnostic.length){
+      el.workbenchMsDetail.className="feedback neutral";
+      el.workbenchMsDetail.textContent="Für diesen Stoff ist die MS-Fragment-Lernhilfe noch nicht kuratiert.";
+    }else if(frag){
+      el.workbenchMsDetail.className="fragment-detail";
+      el.workbenchMsDetail.innerHTML=`<div class="fragment-head"><strong>m/z ${frag.mz} · ${escapeHtml(frag.label)}</strong><span class="fragment-ion">${escapeHtml(frag.ion_formula||"")}</span></div><div><strong>Weg:</strong> ${escapeHtml(frag.pathway||"")}</div><p>${escapeHtml(frag.note||"")}</p><p class="hint">Detektiert wird das geladene Fragmention; ein gleichzeitig entstehendes neutrales Teilchen erzeugt keinen Peak.</p>`;
+    }else{
+      el.workbenchMsDetail.className="feedback neutral";
+      el.workbenchMsDetail.textContent="Wähle einen markierten diagnostischen Peak. Es werden bewusst nur wenige gut begründbare Fragmente erklärt.";
+    }
+  }
+
+  function renderWorkbenchIrLearning(){
+    const canvas=el.workbenchCanvas,ctx=canvas.getContext("2d"),bands=target().ir?.bands||[];
+    baseCanvas(ctx,canvas);
+    const p={l:65,r:25,t:28,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
+
+    if(el.workbenchIrGroupsToggle.checked){
+      const areas=[[3600,3200,"O–H"],[3300,2500,"COOH-OH"],[1800,1650,"C=O"],[1300,1000,"C–O"]];
+      ctx.font="12px system-ui";
+      for(const [hi,lo,label] of areas){
+        const x1=p.l+w*(4000-hi)/3500,x2=p.l+w*(4000-lo)/3500;
+        ctx.fillStyle="rgba(96,165,250,.10)";ctx.fillRect(x1,p.t,x2-x1,h);
+        ctx.fillStyle="#88aee0";ctx.textBaseline="top";ctx.fillText(label,x1+4,p.t+2);ctx.textBaseline="alphabetic";
+      }
+    }
+    if(el.workbenchIrFingerprintToggle.checked){
+      const x=p.l+w*(4000-1500)/3500;
+      ctx.fillStyle="rgba(251,191,36,.08)";ctx.fillRect(x,p.t,p.l+w-x,h);
+      ctx.fillStyle="#c8a951";ctx.textBaseline="top";ctx.fillText("Fingerprintbereich",x+8,p.t+2);ctx.textBaseline="alphabetic";
+    }
+    gridAxes(ctx,p,w,h,"Wellenzahl / cm⁻¹","Transmission",4000,500,0,1,true);
+    ctx.strokeStyle="#59d4df";ctx.lineWidth=2.4;ctx.beginPath();
+    const n=900;
+    for(let i=0;i<n;i++){
+      const cm=4000-3500*i/(n-1),tr=irTransmissionAt(cm,bands),x=p.l+w*i/(n-1),y=p.t+h-h*tr;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    canvas._workbenchPlot={type:"ir-learn"};
+    el.workbenchLegend.textContent="IR-Lernansicht · Funktionsgruppen- und Fingerprintbereiche optional einblendbar";
+  }
+
+  function renderWorkbenchNmrLearning(){
+    const canvas=el.workbenchCanvas,ctx=canvas.getContext("2d"),signals=target().h1_nmr?.signals||[],groups=protonGroups();
+    baseCanvas(ctx,canvas);
+    const p={l:65,r:25,t:28,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
+    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",12,0,0,1,true);
+    const maxInt=Math.max(1,...signals.map(s=>s.integration));
+
+    signals.forEach(sig=>{
+      const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(12-sig.delta)/12,rel=sig.integration/maxInt,active=activeSignalId===sig.id;
+      ctx.strokeStyle=active?"#f5c66a":"#6ae2ec";
+      ctx.lineWidth=active?4:2.4;
+      lines.forEach((amp,i)=>{
+        const x=baseX-total/2+i*spacing;
+        let peakHeight=h*.82*rel*(amp/Math.max(...lines));
+        if(sig.exchangeable)peakHeight=Math.max(peakHeight,h*.28);
+        ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,p.t+h-peakHeight);ctx.stroke();
+      });
+    });
+    canvas._workbenchPlot={type:"nmr-learn"};
+    el.workbenchLegend.textContent=activeSignalId?"¹H-NMR-Lernansicht · ausgewähltes Signal hervorgehoben":"¹H-NMR-Lernansicht · Signal auswählen, um die Protonengruppe zu verknüpfen";
+
+    el.workbenchNmrSignalList.innerHTML=signals.map((sig,i)=>{
+      const active=activeSignalId===sig.id;
+      return `<button type="button" class="proton-signal ${active?"active":""}" data-signal-id="${sig.id}"><strong>Signal ${i+1}</strong><span>δ ${sig.delta.toLocaleString("de-AT")} ppm · ${sig.integration} H · ${sig.multiplicity}</span></button>`;
+    }).join("");
+
+    if(!groups.length){
+      el.workbenchNmrStructure.innerHTML="";
+      el.workbenchNmrFeedback.className="feedback neutral";
+      el.workbenchNmrFeedback.textContent="Für diesen Stoff ist die Protonengruppen-Verknüpfung noch nicht kuratiert.";
+      return;
+    }
+
+    let markers="";
+    for(const group of groups){
+      for(const hotspot of group.hotspots||[]){
+        const active=activeSignalId===group.id,w0=hotspot.w||58,h0=hotspot.h||34;
+        markers+=`<g class="proton-group-hit ${active?"active":""}" data-proton-group="${group.id}" role="button" aria-label="${group.label||"Protonengruppe"}"><rect x="${hotspot.x-w0/2}" y="${hotspot.y-h0/2}" width="${w0}" height="${h0}" rx="9" ry="9"></rect></g>`;
+      }
+    }
+    const annotated=(target().structure_svg||"").replace(/(<svg[^>]*>)/,`$1${markers}`);
+    el.workbenchNmrStructure.innerHTML=`<div class="proton-svg">${annotated}</div>`;
+    const group=groups.find(g=>g.id===activeSignalId);
+    if(group){
+      el.workbenchNmrFeedback.className="feedback good";
+      el.workbenchNmrFeedback.innerHTML=`<strong>${escapeHtml(group.label||"Protonengruppe")}</strong><br>${escapeHtml(group.note||"")}`;
+    }else{
+      el.workbenchNmrFeedback.className="feedback neutral";
+      el.workbenchNmrFeedback.textContent="Klicke auf einen Signalchip oder direkt auf eine Protonengruppe in der Struktur.";
+    }
+  }
+
+  function handleWorkbenchCanvasClick(evt){
+    if(workbenchMode!=="learn" || workbenchMethod!=="ms") return;
+    const o=el.workbenchCanvas._workbenchPlot;
+    if(!o || o.type!=="ms-learn") return;
+    const q=canvasPoint(evt,el.workbenchCanvas);
+    let best=null,dist=24;
+    for(const f of o.diagnostic){
+      const x=o.p.l+o.w*f.mz/o.maxMz,d=Math.abs(q.x-x);
+      if(d<dist){dist=d;best=f;}
+    }
+    if(best){activeMsFragmentMz=best.mz;renderWorkbench();}
   }
 
   function renderReferenceComparison(){
