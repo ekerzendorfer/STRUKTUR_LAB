@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.1.4 – Butanol-Fälle und MS-Fragment-Lernhilfe  
+**Version:** v0.1.5 – gemeinsame Spektrenwerkstatt  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -102,3 +102,25 @@ Der Referenzvergleich stützt die spektroskopische Strukturhypothese. Im später
 - Klick auf Peak oder Peak-Chip hebt den Peak hervor und zeigt Ionenformel, Fragmentierungsweg und kurze Erklärung
 
 Die Fragmentzuordnung ist eine kuratierte Lernhilfe und kein universeller Fragmentierungsalgorithmus.
+
+
+## v0.1.5 – Spektrenwerkstatt
+
+Die nach der gelösten Struktur bisher getrennten Blöcke für MS-Fragmentdiagnose, NMR-Protonengruppen und Kandidatenvergleich wurden zu einer gemeinsamen **Spektrenwerkstatt** zusammengeführt.
+
+Bedienung:
+- Methodenreiter: **MS | IR | ¹H-NMR**
+- Arbeitsmodus: **Lernen / Diagnose | Kandidatenvergleich**
+- ein gemeinsames Spektrenfenster für alle Methoden
+
+Lernen / Diagnose:
+- MS: diagnostische Fragmentpeaks anklicken und Fragmention/Fragmentierungsweg erklären
+- IR: Funktionsgruppen- und Fingerprintbereiche im selben Fenster ein-/ausblenden
+- ¹H-NMR: Signalchips und Protonengruppen bidirektional hervorheben; das aktive Signal wird zusätzlich im Spektrum hervorgehoben
+
+Kandidatenvergleich:
+- alternative Struktur aus dem aktuellen Fall auswählen
+- gewähltes Referenzspektrum gestrichelt über das unbekannte Spektrum legen
+- Umschaltung zwischen MS, IR und ¹H-NMR ohne Wechsel des Arbeitsbereichs
+
+Die ursprüngliche Analysefolge M → MS → IR → ¹H-NMR → Hypothese bleibt unverändert. Die Spektrenwerkstatt ist die gemeinsame Vertiefungs- und Vergleichsebene nach bestätigter Struktur.
