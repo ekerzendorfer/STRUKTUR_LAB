@@ -554,7 +554,7 @@
         ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,p.t+h-peakHeight);ctx.stroke();
       });
     });
-    canvas._workbenchPlot={type:"nmr-learn"};
+    canvas._workbenchPlot={type:"nmr-learn",p,w,h,signals};
     el.workbenchLegend.textContent=activeSignalId?"¹H-NMR-Lernansicht · ausgewähltes Signal hervorgehoben":"¹H-NMR-Lernansicht · Signal auswählen, um die Protonengruppe zu verknüpfen";
 
     el.workbenchNmrSignalList.innerHTML=signals.map((sig,i)=>{
@@ -579,9 +579,10 @@
     const annotated=(target().structure_svg||"").replace(/(<svg[^>]*>)/,`$1${markers}`);
     el.workbenchNmrStructure.innerHTML=`<div class="proton-svg">${annotated}</div>`;
     const group=groups.find(g=>g.id===activeSignalId);
-    if(group){
+    const signal=signals.find(s=>s.id===activeSignalId);
+    if(group&&signal){
       el.workbenchNmrFeedback.className="feedback good";
-      el.workbenchNmrFeedback.innerHTML=`<strong>${escapeHtml(group.label||"Protonengruppe")}</strong><br>${escapeHtml(group.note||"")}`;
+      el.workbenchNmrFeedback.innerHTML=`<strong>${escapeHtml(group.label||"Protonengruppe")}</strong><br><span class="nmr-signal-meta">δ ${signal.delta.toLocaleString("de-AT")} ppm · ${signal.integration} H · ${escapeHtml(signal.multiplicity)}</span><br>${escapeHtml(group.note||"")}`;
     }else{
       el.workbenchNmrFeedback.className="feedback neutral";
       el.workbenchNmrFeedback.textContent="Klicke auf einen Signalchip oder direkt auf eine Protonengruppe in der Struktur.";
@@ -589,16 +590,29 @@
   }
 
   function handleWorkbenchCanvasClick(evt){
-    if(workbenchMode!=="learn" || workbenchMethod!=="ms") return;
+    if(workbenchMode!=="learn") return;
     const o=el.workbenchCanvas._workbenchPlot;
-    if(!o || o.type!=="ms-learn") return;
+    if(!o) return;
     const q=canvasPoint(evt,el.workbenchCanvas);
-    let best=null,dist=24;
-    for(const f of o.diagnostic){
-      const x=o.p.l+o.w*f.mz/o.maxMz,d=Math.abs(q.x-x);
-      if(d<dist){dist=d;best=f;}
+
+    if(workbenchMethod==="ms" && o.type==="ms-learn"){
+      let best=null,dist=24;
+      for(const f of o.diagnostic){
+        const x=o.p.l+o.w*f.mz/o.maxMz,d=Math.abs(q.x-x);
+        if(d<dist){dist=d;best=f;}
+      }
+      if(best){activeMsFragmentMz=best.mz;renderWorkbench();}
+      return;
     }
-    if(best){activeMsFragmentMz=best.mz;renderWorkbench();}
+
+    if(workbenchMethod==="nmr" && o.type==="nmr-learn"){
+      let best=null,dist=28;
+      for(const sig of o.signals){
+        const x=o.p.l+o.w*(12-sig.delta)/12,d=Math.abs(q.x-x);
+        if(d<dist){dist=d;best=sig;}
+      }
+      if(best){activeSignalId=best.id;renderWorkbench();}
+    }
   }
 
   function renderReferenceComparison(){
