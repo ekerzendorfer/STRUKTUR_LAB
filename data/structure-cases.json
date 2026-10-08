@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.1.4",
   "classes": [
     "Alkohol",
     "Ether",
@@ -59,6 +59,40 @@
         "DIMETHYL_ETHER"
       ],
       "intro_de": "Ein flüchtiger organischer Stoff zeigt mehrere deutliche spektroskopische Hinweise auf seine funktionelle Gruppe.",
+      "formula_support": {
+        "basic": "molecular",
+        "expert": "none"
+      }
+    },
+    {
+      "id": "CASE_D",
+      "label_de": "Unbekannt D",
+      "target_substance_id": "BUTAN_1_OL",
+      "level": "mittel",
+      "candidate_ids": [
+        "BUTAN_1_OL",
+        "BUTAN_2_OL",
+        "ETHANOL",
+        "DIMETHYL_ETHER"
+      ],
+      "intro_de": "Ein unbekannter Alkohol mit vier Kohlenstoffatomen soll von seinem Stellungsisomer unterschieden werden.",
+      "formula_support": {
+        "basic": "molecular",
+        "expert": "none"
+      }
+    },
+    {
+      "id": "CASE_E",
+      "label_de": "Unbekannt E",
+      "target_substance_id": "BUTAN_2_OL",
+      "level": "mittel",
+      "candidate_ids": [
+        "BUTAN_2_OL",
+        "BUTAN_1_OL",
+        "ETHANOL",
+        "DIMETHYL_ETHER"
+      ],
+      "intro_de": "Ein sekundärer Alkohol soll anhand von MS, IR und besonders ¹H-NMR von einem primären Isomer unterschieden werden.",
       "formula_support": {
         "basic": "molecular",
         "expert": "none"

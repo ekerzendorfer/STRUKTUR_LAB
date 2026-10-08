@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.1.4",
   "note_de": "Kuratierte Unterrichtsdaten. Kein universeller Spektrensimulator.",
   "substances": [
     {
@@ -457,7 +457,7 @@
     },
     {
       "id": "BUTAN_1_OL",
-      "implemented": false,
+      "implemented": true,
       "name_de": "1-Butanol",
       "formula": "C4H10O",
       "molar_mass": 74.12,
@@ -467,11 +467,223 @@
       "synonyms": [
         "1-Butanol",
         "Butan-1-ol"
-      ]
+      ],
+      "functional_groups": [
+        "Alkohol"
+      ],
+      "mass_measurement": {
+        "value": 74,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 27,
+            "intensity": 18
+          },
+          {
+            "mz": 31,
+            "intensity": 100
+          },
+          {
+            "mz": 41,
+            "intensity": 58
+          },
+          {
+            "mz": 43,
+            "intensity": 32
+          },
+          {
+            "mz": 56,
+            "intensity": 78
+          },
+          {
+            "mz": 74,
+            "intensity": 4
+          }
+        ],
+        "diagnostic_fragments": [
+          {
+            "mz": 74,
+            "label": "Molekülion",
+            "ion_formula": "C₄H₁₀O⁺·",
+            "pathway": "Elektronenstoß-Ionisation",
+            "note": "Das Molekülion entspricht der unfragmentierten Verbindung als Radikalkation. Bei aliphatischen Alkoholen kann dieser Peak sehr schwach sein."
+          },
+          {
+            "mz": 31,
+            "label": "α-Spaltung",
+            "ion_formula": "CH₂OH⁺",
+            "pathway": "Spaltung der C–C-Bindung direkt neben der OH-Gruppe",
+            "note": "Dieses sauerstoffhaltige Fragment ist für primäre Alkohole besonders lehrreich und bildet bei 1-Butanol den dominanten Peak."
+          },
+          {
+            "mz": 56,
+            "label": "Dehydratisierung",
+            "ion_formula": "C₄H₈⁺·",
+            "pathway": "M − H₂O, also Verlust von 18 u",
+            "note": "Alkohole können Wasser abspalten. Bei 1-Butanol führt M − 18 vom Molekülion m/z 74 zum Fragment bei m/z 56."
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach NIST/LibreTexts; relative Intensitäten für den Unterricht kuratiert"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 3340,
+            "strength": 0.72,
+            "width": 320,
+            "shape": "broad"
+          },
+          {
+            "cm1": 2960,
+            "strength": 0.28,
+            "width": 62
+          },
+          {
+            "cm1": 2930,
+            "strength": 0.24,
+            "width": 58
+          },
+          {
+            "cm1": 2870,
+            "strength": 0.18,
+            "width": 55
+          },
+          {
+            "cm1": 1055,
+            "strength": 0.76,
+            "width": 58
+          }
+        ],
+        "source_note": "didaktisch kuratierte Hauptbanden, an NIST-IR von 1-Butanol ausgerichtet"
+      },
+      "h1_nmr": {
+        "solvent": "CDCl3 · didaktisch kuratiert",
+        "signals": [
+          {
+            "id": "H_A",
+            "delta": 0.92,
+            "integration": 3,
+            "multiplicity": "t",
+            "j_hz": 7,
+            "exchangeable": false
+          },
+          {
+            "id": "H_B",
+            "delta": 1.38,
+            "integration": 2,
+            "multiplicity": "m",
+            "exchangeable": false
+          },
+          {
+            "id": "H_C",
+            "delta": 1.55,
+            "integration": 2,
+            "multiplicity": "m",
+            "exchangeable": false
+          },
+          {
+            "id": "H_E",
+            "delta": 2.2,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          },
+          {
+            "id": "H_D",
+            "delta": 3.63,
+            "integration": 2,
+            "multiplicity": "t",
+            "j_hz": 6.7,
+            "exchangeable": false
+          }
+        ],
+        "proton_groups": [
+          {
+            "id": "H_A",
+            "label": "terminale CH₃-Gruppe",
+            "hotspots": [
+              {
+                "x": 42,
+                "y": 50,
+                "w": 58,
+                "h": 34
+              }
+            ],
+            "note": "Das 3H-Triplet bei ca. 0,92 ppm gehört zur terminalen CH₃-Gruppe. Die benachbarte CH₂-Gruppe besitzt zwei Protonen."
+          },
+          {
+            "id": "H_B",
+            "label": "CH₂ neben CH₃",
+            "hotspots": [
+              {
+                "x": 130,
+                "y": 50,
+                "w": 62,
+                "h": 34
+              }
+            ],
+            "note": "Diese 2H-Gruppe liegt im Alkylbereich. Wegen Kopplungen zu Protonen auf beiden Nachbarkohlenstoffen erscheint das Signal als Multiplet."
+          },
+          {
+            "id": "H_C",
+            "label": "mittlere CH₂-Gruppe",
+            "hotspots": [
+              {
+                "x": 218,
+                "y": 50,
+                "w": 62,
+                "h": 34
+              }
+            ],
+            "note": "Auch diese 2H-Gruppe liegt im Alkylbereich, wird aber durch die nähere OH-substituierte Seite etwas anders beeinflusst."
+          },
+          {
+            "id": "H_D",
+            "label": "CH₂ direkt neben O",
+            "hotspots": [
+              {
+                "x": 306,
+                "y": 50,
+                "w": 62,
+                "h": 34
+              }
+            ],
+            "note": "Das 2H-Signal um 3,63 ppm gehört zur CH₂OH-Gruppe. Sauerstoff entschirmt diese Protonen deutlich; zwei Nachbarprotonen ergeben näherungsweise ein Triplet."
+          },
+          {
+            "id": "H_E",
+            "label": "OH-Proton",
+            "hotspots": [
+              {
+                "x": 380,
+                "y": 50,
+                "w": 48,
+                "h": 34
+              }
+            ],
+            "note": "Das breite OH-Signal ist austauschbar. Seine genaue Lage und Aufspaltung können stark von Lösungsmittel und Wassergehalt abhängen."
+          }
+        ],
+        "source_note": "didaktisch kuratiert nach publizierten ¹H-NMR-Daten; CH₂OH etwa 3,6 ppm, terminales CH₃ etwa 0,9 ppm"
+      },
+      "class_feedback": {
+        "Alkohol": "passt: breite O–H-Absorption und ein deutlich ins Tieffeld verschobenes Protonensignal an einem C-Atom neben O sind mit einem Alkohol vereinbar.",
+        "Ether": "spricht dagegen: die breite O–H-Absorption ist mit einem reinen Ether nicht vereinbar.",
+        "Keton": "spricht dagegen: eine starke Carbonylbande fehlt.",
+        "Ester": "spricht dagegen: die typische starke Ester-C=O-Bande fehlt.",
+        "Carbonsäure": "spricht dagegen: es fehlt die Kombination aus sehr breiter Säure-OH-Bande und starker C=O-Bande.",
+        "Aldehyd": "spricht dagegen: Carbonylbande und stark tieffeldverschobenes Aldehydproton fehlen.",
+        "Amin": "spricht dagegen: die O–H- und C–O-Merkmale erklären die Daten deutlich besser.",
+        "Amid": "spricht dagegen: eine Amid-Carbonylbande fehlt.",
+        "Alken": "spricht dagegen: typische C=C-/vinylische Merkmale fehlen.",
+        "Aromat": "spricht dagegen: aromatische Protonensignale und Ringmerkmale fehlen."
+      }
     },
     {
       "id": "BUTAN_2_OL",
-      "implemented": false,
+      "implemented": true,
       "name_de": "2-Butanol",
       "formula": "C4H10O",
       "molar_mass": 74.12,
@@ -481,7 +693,219 @@
       "synonyms": [
         "2-Butanol",
         "Butan-2-ol"
-      ]
+      ],
+      "functional_groups": [
+        "Alkohol"
+      ],
+      "mass_measurement": {
+        "value": 74,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 27,
+            "intensity": 14
+          },
+          {
+            "mz": 29,
+            "intensity": 18
+          },
+          {
+            "mz": 41,
+            "intensity": 22
+          },
+          {
+            "mz": 45,
+            "intensity": 100
+          },
+          {
+            "mz": 59,
+            "intensity": 55
+          },
+          {
+            "mz": 74,
+            "intensity": 4
+          }
+        ],
+        "diagnostic_fragments": [
+          {
+            "mz": 74,
+            "label": "Molekülion",
+            "ion_formula": "C₄H₁₀O⁺·",
+            "pathway": "Elektronenstoß-Ionisation",
+            "note": "Das Molekülion liegt auch hier bei m/z 74, ist bei Alkoholen aber nur schwach ausgeprägt."
+          },
+          {
+            "mz": 45,
+            "label": "α-Spaltung",
+            "ion_formula": "C₂H₅O⁺",
+            "pathway": "Spaltung neben dem C-Atom mit OH unter Verlust eines Ethylradikals",
+            "note": "Das sauerstoffhaltige Fragment bei m/z 45 ist im didaktisch reduzierten Spektrum der Basispeak."
+          },
+          {
+            "mz": 59,
+            "label": "α-Spaltung",
+            "ion_formula": "C₃H₇O⁺",
+            "pathway": "Spaltung auf der anderen Seite unter Verlust eines Methylradikals",
+            "note": "Weil 2-Butanol auf beiden Seiten des CHOH-Zentrums unterschiedliche Alkylreste besitzt, sind zwei markante α-Spaltungsfragmente möglich."
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach Literatur/NIST-nahen Referenzen; relative Intensitäten für den Unterricht kuratiert"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 3350,
+            "strength": 0.7,
+            "width": 320,
+            "shape": "broad"
+          },
+          {
+            "cm1": 2970,
+            "strength": 0.3,
+            "width": 62
+          },
+          {
+            "cm1": 2935,
+            "strength": 0.23,
+            "width": 58
+          },
+          {
+            "cm1": 2875,
+            "strength": 0.18,
+            "width": 55
+          },
+          {
+            "cm1": 1110,
+            "strength": 0.75,
+            "width": 60
+          }
+        ],
+        "source_note": "didaktisch kuratierte Hauptbanden, an NIST-IR von 2-Butanol ausgerichtet"
+      },
+      "h1_nmr": {
+        "solvent": "CDCl3 · didaktisch kuratiert",
+        "signals": [
+          {
+            "id": "H_A",
+            "delta": 0.91,
+            "integration": 3,
+            "multiplicity": "t",
+            "j_hz": 7.2,
+            "exchangeable": false
+          },
+          {
+            "id": "H_B",
+            "delta": 1.17,
+            "integration": 3,
+            "multiplicity": "d",
+            "j_hz": 6.2,
+            "exchangeable": false
+          },
+          {
+            "id": "H_C",
+            "delta": 1.5,
+            "integration": 2,
+            "multiplicity": "m",
+            "exchangeable": false
+          },
+          {
+            "id": "H_E",
+            "delta": 2.3,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          },
+          {
+            "id": "H_D",
+            "delta": 3.75,
+            "integration": 1,
+            "multiplicity": "m",
+            "exchangeable": false
+          }
+        ],
+        "proton_groups": [
+          {
+            "id": "H_A",
+            "label": "terminales CH₃ der Ethylseite",
+            "hotspots": [
+              {
+                "x": 306,
+                "y": 70,
+                "w": 58,
+                "h": 34
+              }
+            ],
+            "note": "Das 3H-Triplet um 0,91 ppm gehört zur terminalen CH₃-Gruppe der Ethylseite; sie koppelt hauptsächlich mit der benachbarten CH₂-Gruppe."
+          },
+          {
+            "id": "H_B",
+            "label": "CH₃ direkt neben CHOH",
+            "hotspots": [
+              {
+                "x": 42,
+                "y": 70,
+                "w": 58,
+                "h": 34
+              }
+            ],
+            "note": "Das 3H-Dublett um 1,17 ppm gehört zur CH₃-Gruppe neben dem CHOH-Zentrum. Ein benachbartes Methin-Proton führt im einfachen n+1-Modell zum Dublett."
+          },
+          {
+            "id": "H_C",
+            "label": "CH₂-Gruppe",
+            "hotspots": [
+              {
+                "x": 218,
+                "y": 70,
+                "w": 62,
+                "h": 34
+              }
+            ],
+            "note": "Die 2H-CH₂-Gruppe koppelt mit unterschiedlichen Nachbargruppen und erscheint daher vereinfacht als Multiplet."
+          },
+          {
+            "id": "H_D",
+            "label": "CHOH-Proton",
+            "hotspots": [
+              {
+                "x": 130,
+                "y": 70,
+                "w": 48,
+                "h": 34
+              }
+            ],
+            "note": "Das einzelne Proton am C-Atom mit OH liegt deutlich tieffeldverschoben bei etwa 3,7–3,8 ppm. Durch Kopplung zu mehreren Nachbarprotonen entsteht ein komplexes Multiplet."
+          },
+          {
+            "id": "H_E",
+            "label": "OH-Proton",
+            "hotspots": [
+              {
+                "x": 130,
+                "y": 18,
+                "w": 46,
+                "h": 30
+              }
+            ],
+            "note": "Das OH-Proton ist austauschbar; seine Lage kann variieren und sein Signal ist oft verbreitert."
+          }
+        ],
+        "source_note": "didaktisch kuratiert nach publizierten ¹H-NMR-Daten in CDCl3; CHOH etwa 3,7 ppm, unterschiedliche CH₃-Signale um 0,9 und 1,2 ppm"
+      },
+      "class_feedback": {
+        "Alkohol": "passt: breite O–H-Absorption und ein deutlich ins Tieffeld verschobenes Protonensignal an einem C-Atom neben O sind mit einem Alkohol vereinbar.",
+        "Ether": "spricht dagegen: die breite O–H-Absorption ist mit einem reinen Ether nicht vereinbar.",
+        "Keton": "spricht dagegen: eine starke Carbonylbande fehlt.",
+        "Ester": "spricht dagegen: die typische starke Ester-C=O-Bande fehlt.",
+        "Carbonsäure": "spricht dagegen: es fehlt die Kombination aus sehr breiter Säure-OH-Bande und starker C=O-Bande.",
+        "Aldehyd": "spricht dagegen: Carbonylbande und stark tieffeldverschobenes Aldehydproton fehlen.",
+        "Amin": "spricht dagegen: die O–H- und C–O-Merkmale erklären die Daten deutlich besser.",
+        "Amid": "spricht dagegen: eine Amid-Carbonylbande fehlt.",
+        "Alken": "spricht dagegen: typische C=C-/vinylische Merkmale fehlen.",
+        "Aromat": "spricht dagegen: aromatische Protonensignale und Ringmerkmale fehlen."
+      }
     },
     {
       "id": "TOLUENE",
