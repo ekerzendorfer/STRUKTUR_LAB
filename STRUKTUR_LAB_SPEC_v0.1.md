@@ -201,3 +201,21 @@ Datenmodell im jeweiligen Stoffdatensatz:
 `ms.diagnostic_fragments[] = { mz, label, ion_formula, pathway, note }`
 
 Damit kann die Lernhilfe schrittweise auf weitere Stoffe erweitert werden, ohne einen universellen Fragmentierungsalgorithmus vorzutäuschen.
+
+
+### Nachtrag v0.1.5 – gemeinsame Spektrenwerkstatt
+
+Nach bestätigter Struktur und Namenszuordnung wird eine einheitliche Spektrenwerkstatt freigeschaltet.
+
+UI-Prinzip:
+- ein gemeinsames Canvas/Spektrenfenster
+- Methodenreiter: MS, IR, ¹H-NMR
+- Arbeitsmodus: Lernen/Diagnose oder Kandidatenvergleich
+- Kandidatenauswahl erscheint nur im Vergleichsmodus
+
+Methodenspezifische Lernfunktionen:
+- MS: kuratierte diagnostische Fragmentpeaks
+- IR: Funktionsgruppen- und Fingerprintbereiche
+- ¹H-NMR: Signal ↔ Protonengruppe mit gemeinsamer Hervorhebung
+
+Der spätere direkte Klick auf Multipletts im NMR-Spektrum bleibt als erweiterte Stufe separat vorgemerkt.
