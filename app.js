@@ -118,7 +118,9 @@
         if(!Array.isArray(state.candidateOrder) || state.candidateOrder.length!==currentCaseIdsFor(wanted.caseId).length){
           state.candidateOrder=shuffledCandidateIds(wanted.caseId);
         }
-        currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;return;
+        currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+        return;
       }
     }catch(_){ }
     state=freshState(wanted.caseId,wanted.mode);
