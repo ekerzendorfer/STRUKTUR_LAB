@@ -242,11 +242,18 @@
     if(!selectedStructure){el.structureFeedback.className="feedback warn";el.structureFeedback.textContent="Wähle eine Strukturkarte aus und begründe deine Wahl.";return;}
     if((state.notes.hypothesisNote||"").trim().length<8){el.structureFeedback.className="feedback warn";el.structureFeedback.textContent="Ergänze eine kurze Begründung aus mindestens zwei Analysenschritten.";return;}
     if(selectedStructure===target().id){
-      el.structureFeedback.className="feedback good";el.structureFeedback.textContent="Die Strukturhypothese ist mit den vorliegenden Analysedaten vereinbar. Ordne ihr nun einen Stoffnamen zu.";
+      el.structureFeedback.className="feedback good";
+      el.structureFeedback.textContent="Die Strukturhypothese ist mit den vorliegenden Analysedaten vereinbar. Ordne ihr nun einen Stoffnamen zu.";
       el.nameStage.classList.add("unlocked");
     }else{
-      el.structureFeedback.className="feedback warn";el.structureFeedback.textContent="Diese Struktur erklärt mindestens einen deiner dokumentierten Befunde nicht ausreichend. Vergleiche insbesondere Summenformel/M, IR-Funktionsgruppe und Zahl bzw. Muster der NMR-Signale. Ein Referenzspektrum bleibt gesperrt.";
-      el.nameStage.classList.remove("unlocked");el.referenceStage.classList.remove("unlocked");
+      state.nameVerified=false;
+      referenceUnlocked=false;
+      state.referenceUnlocked=false;
+      save();
+      el.structureFeedback.className="feedback warn";
+      el.structureFeedback.textContent="Diese Struktur erklärt mindestens einen deiner dokumentierten Befunde nicht ausreichend. Vergleiche insbesondere Summenformel/M, IR-Funktionsgruppe und Zahl bzw. Muster der NMR-Signale. Die Spektrenwerkstatt bleibt gesperrt.";
+      el.nameStage.classList.remove("unlocked");
+      renderHypothesisState();
     }
   }
 
