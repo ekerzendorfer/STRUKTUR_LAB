@@ -113,12 +113,28 @@
     const wanted={caseId:el.caseSelect.value,mode:el.modeSelect.value};
     try{
       const old=JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if(old&&old.caseId===wanted.caseId&&old.mode===wanted.mode){state=old;currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;return;}
+      if(old&&old.caseId===wanted.caseId&&old.mode===wanted.mode){
+        state=old;
+        if(!Array.isArray(state.candidateOrder) || state.candidateOrder.length!==currentCaseIdsFor(wanted.caseId).length){
+          state.candidateOrder=shuffledCandidateIds(wanted.caseId);
+        }
+        currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;return;
+      }
     }catch(_){ }
     state=freshState(wanted.caseId,wanted.mode);
   }
 
-  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{}};}
+  function shuffledCandidateIds(caseId){
+    const item=db.cases.find(c=>c.id===caseId);
+    const ids=[...(item?.candidate_ids||[])];
+    for(let i=ids.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [ids[i],ids[j]]=[ids[j],ids[i]];
+    }
+    return ids;
+  }
+
+  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId)};}
   function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
@@ -126,6 +142,7 @@
     save();renderAll(); if(!changed) window.scrollTo({top:0,behavior:"smooth"});
   }
 
+  function currentCaseIdsFor(caseId){return db.cases.find(c=>c.id===caseId)?.candidate_ids||[];}
   function currentCase(){return db.cases.find(c=>c.id===state.caseId)||db.cases[0];}
   function sub(id){return db.substances.find(s=>s.id===id);}
   function target(){return sub(currentCase().target_substance_id);}
@@ -194,7 +211,11 @@
   }
 
   function renderStructures(){
-    const ids=currentCase().candidate_ids, candidates=ids.map(sub).filter(Boolean);
+    if(!Array.isArray(state.candidateOrder) || !state.candidateOrder.length){
+      state.candidateOrder=shuffledCandidateIds(state.caseId);
+      save();
+    }
+    const ids=state.candidateOrder, candidates=ids.map(sub).filter(Boolean);
     el.structureGrid.innerHTML=candidates.map((s,i)=>`<button class="structure-card ${selectedStructure===s.id?"selected":""}" data-id="${s.id}" type="button" aria-label="Strukturkandidat ${i+1}">${s.structure_svg||`<strong>Struktur ${i+1}</strong>`}</button>`).join("");
     el.structureGrid.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{selectedStructure=b.dataset.id;state.selectedStructure=selectedStructure;save();renderStructures();renderJournal();}));
   }
