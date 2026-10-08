@@ -56,3 +56,24 @@ footer{max-width:1480px;margin:auto;padding:0 20px 24px;text-align:center;color:
 .fragment-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:7px}
 .fragment-ion{font:700 1.1rem ui-monospace,SFMono-Regular,Consolas,monospace;color:#f5d58a}
 .fragment-detail p{margin:.5rem 0 0}
+
+
+/* v0.1.5 · gemeinsame Spektrenwerkstatt */
+.workbench-stage{padding:16px}
+.workbench-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:12px}
+.workbench-head h3{margin:.25rem 0 .35rem}
+.workbench-modes,.workbench-methods{display:flex;gap:7px;flex-wrap:wrap}
+.workbench-modes button,.workbench-methods button{background:#13263d;color:#dce7f1;padding:8px 11px}
+.workbench-modes button.active,.workbench-methods button.active{background:#0f7890;border-color:#2ab6ca;color:#fff}
+.workbench-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:10px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#0b1829}
+.workbench-spectrum{padding:10px;border:1px solid var(--line);border-radius:12px;background:#07101b}
+.workbench-spectrum canvas{border:0;background:#07101b}
+.workbench-learning{margin-top:10px}
+.workbench-learning[hidden],#workbenchCompareHint[hidden],#workbenchCandidateWrap[hidden],#workbenchMsPanel[hidden],#workbenchIrPanel[hidden],#workbenchNmrPanel[hidden]{display:none}
+.workbench-options{display:flex;gap:16px;flex-wrap:wrap;margin:9px 0}
+.workbench-footer-hint{margin-bottom:0}
+@media(max-width:760px){
+  .workbench-head,.workbench-toolbar{align-items:flex-start;flex-direction:column}
+  .workbench-modes,.workbench-methods{width:100%}
+  .workbench-modes button,.workbench-methods button{flex:1}
+}

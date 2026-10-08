@@ -14,7 +14,7 @@
     <h1>STRUKTUR-LAB</h1>
     <p>M → MS → IR → ¹H-NMR → begründete Strukturhypothese</p>
   </div>
-  <div class="version">v0.1.4<br><small>Single-Mode · Prototyp</small></div>
+  <div class="version">v0.1.5<br><small>Single-Mode · Spektrenwerkstatt</small></div>
 </header>
 
 <main class="shell">
@@ -144,50 +144,65 @@
 
 
 
-        <div id="msFragmentStage" class="hypothesis-block locked-panel">
-          <span class="small-label">Vertiefung · MS nach gelöster Struktur</span>
-          <h3>Welche diagnostischen Fragmente erklären wichtige MS-Peaks?</h3>
-          <p class="hint">Klicke auf einen markierten Peak oder auf einen Peak-Chip. Es werden bewusst nur wenige didaktisch gut begründbare Fragmentierungswege erklärt; nicht jeder kleine Peak muss eindeutig zugeordnet werden.</p>
-          <canvas id="msFragmentCanvas" width="1000" height="330" aria-label="MS-Fragment-Lernansicht"></canvas>
-          <div id="msFragmentPeakList" class="fragment-chip-list"></div>
-          <div id="msFragmentDetail" class="feedback neutral">Wähle einen diagnostischen Peak.</div>
-        </div>
-
-        <div id="protonAssignmentStage" class="hypothesis-block locked-panel">
+        <div id="spectraWorkbenchStage" class="hypothesis-block locked-panel workbench-stage">
           <span class="small-label">Vertiefung · nach gelöster Struktur</span>
-          <h3>Signal ↔ Protonengruppe erkunden</h3>
-          <p class="hint">Klicke auf ein NMR-Signal oder auf eine Protonengruppe in der bestätigten Struktur. Das zugehörige Gegenstück wird hervorgehoben und kurz erklärt. Diese Lernansicht wird erst nach der richtigen Struktur freigeschaltet.</p>
-          <div id="protonSignalList" class="proton-signal-list"></div>
-          <div id="protonStructure" class="proton-structure"></div>
-          <div id="protonFeedback" class="feedback neutral">Klicke auf ein NMR-Signal oder eine Protonengruppe, um die Zuordnung sichtbar zu machen.</div>
+          <div class="workbench-head">
+            <div>
+              <h3>Spektrenwerkstatt</h3>
+              <p class="hint">Untersuche die gelöste Struktur nochmals gezielt: diagnostische Merkmale verstehen oder mit alternativen Kandidaten vergleichen.</p>
+            </div>
+            <div class="workbench-modes" role="group" aria-label="Arbeitsmodus">
+              <button type="button" class="active" data-workbench-mode="learn">Lernen / Diagnose</button>
+              <button type="button" data-workbench-mode="compare">Kandidatenvergleich</button>
+            </div>
+          </div>
+
+          <div class="workbench-toolbar">
+            <div class="workbench-methods" role="tablist" aria-label="Spektroskopische Methode">
+              <button type="button" class="active" data-workbench-method="ms">MS</button>
+              <button type="button" data-workbench-method="ir">IR</button>
+              <button type="button" data-workbench-method="nmr">¹H-NMR</button>
+            </div>
+            <label id="workbenchCandidateWrap" class="reference-candidate" hidden>Kandidat
+              <select id="workbenchCandidateSelect"></select>
+            </label>
+          </div>
+
+          <div class="workbench-spectrum">
+            <canvas id="workbenchCanvas" width="1000" height="390" aria-label="Spektrenwerkstatt"></canvas>
+            <div id="workbenchLegend" class="reference-legend"></div>
+          </div>
+
+          <div id="workbenchLearnPanel" class="workbench-learning">
+            <div id="workbenchMsPanel">
+              <p class="hint">Markierte Peaks sind didaktisch kuratierte diagnostische Fragmente. Klicke auf einen Peak oder einen Chip.</p>
+              <div id="workbenchMsPeakList" class="fragment-chip-list"></div>
+              <div id="workbenchMsDetail" class="feedback neutral">Wähle einen diagnostischen Peak.</div>
+            </div>
+
+            <div id="workbenchIrPanel" hidden>
+              <div class="workbench-options">
+                <label class="toggle"><input id="workbenchIrGroupsToggle" type="checkbox" checked> Funktionsgruppenbereiche</label>
+                <label class="toggle"><input id="workbenchIrFingerprintToggle" type="checkbox"> Fingerprintbereich</label>
+              </div>
+              <div class="feedback neutral">Nutze die Bereiche als Orientierung: Welche funktionellen Gruppen werden durch das Spektrum gestützt oder ausgeschlossen?</div>
+            </div>
+
+            <div id="workbenchNmrPanel" hidden>
+              <p class="hint">Klicke auf ein Signal. Die zugehörige Protonengruppe in der bestätigten Struktur wird dezent hervorgehoben. Umgekehrt kannst du die Protonengruppe anklicken.</p>
+              <div id="workbenchNmrSignalList" class="proton-signal-list"></div>
+              <div id="workbenchNmrStructure" class="proton-structure"></div>
+              <div id="workbenchNmrFeedback" class="feedback neutral">Wähle ein NMR-Signal oder eine Protonengruppe.</div>
+            </div>
+          </div>
+
+          <div id="workbenchCompareHint" class="feedback neutral" hidden>
+            Deine Strukturhypothese bleibt festgelegt. Wähle einen angebotenen Kandidaten und vergleiche sein Spektrum mit dem unbekannten Spektrum.
+          </div>
+
+          <p class="hint workbench-footer-hint">Die Spektrenwerkstatt dient dem Lernen und Begründen. Im Analytik-Hub folgt zur endgültigen Identitätsbestätigung später noch der gezielte GC-Referenzstandard.</p>
         </div>
 
-        <div id="referenceStage" class="hypothesis-block locked-panel">
-          <span class="small-label">Nach der Hypothese</span>
-          <h3>Kandidatenvergleich</h3>
-          <p>Deine Hypothese ist bereits festgelegt. Jetzt kannst du rückblickend prüfen, warum andere angebotene Strukturen schlechter zu den Spektren passen.</p>
-          <button id="referenceBtn" class="secondary" type="button">Kandidatenvergleich öffnen</button>
-          <div id="referenceFeedback" class="feedback neutral"></div>
-          <div id="referenceCompare" class="reference-compare" hidden>
-            <div class="reference-toolbar">
-              <div>
-                <strong>Spektrenvergleich</strong>
-                <span>Wähle einen Kandidaten. Seine Referenz wird gestrichelt über das unbekannte Spektrum gelegt.</span>
-              </div>
-              <label class="reference-candidate">Kandidat
-                <select id="referenceCandidateSelect"></select>
-              </label>
-              <div class="reference-tabs">
-                <button class="active" data-reference-method="ir" type="button">IR</button>
-                <button data-reference-method="ms" type="button">MS</button>
-                <button data-reference-method="nmr" type="button">¹H-NMR</button>
-              </div>
-            </div>
-            <canvas id="referenceCanvas" width="1000" height="390" aria-label="Referenzvergleich"></canvas>
-            <div id="referenceLegend" class="reference-legend">IR: unbekannt durchgezogen · Kandidat gestrichelt</div>
-            <p class="hint">Deckungsgleiche Signale stützen die Hypothese. Im Analytik-Hub folgt zur endgültigen Bestätigung später noch der gezielte GC-Referenzstandard.</p>
-          </div>
-        </div>
       </div>
     </section>
 
