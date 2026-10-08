@@ -216,8 +216,16 @@
   function checkName(){
     if(selectedStructure!==target().id){return;}
     const ok=(target().synonyms||[target().name_de]).some(x=>normalizeName(x)===normalizeName(el.nameInput.value));
-    if(ok){state.nameVerified=true;save();el.nameFeedback.className="feedback good";el.nameFeedback.textContent=`Namenszuordnung passt: ${target().name_de}. Jetzt ist der Referenzvergleich als Absicherung freigeschaltet.`;el.referenceStage.classList.add("unlocked");}
-    else{el.nameFeedback.className="feedback warn";el.nameFeedback.textContent="Der Name passt noch nicht zur ausgewählten Struktur. Prüfe Stoffklasse und systematische bzw. gebräuchliche Benennung.";}
+    if(ok){
+      state.nameVerified=true;
+      save();
+      el.nameFeedback.className="feedback good";
+      el.nameFeedback.textContent=`Namenszuordnung passt: ${target().name_de}. Die spektroskopischen Lern- und Vergleichsfunktionen sind jetzt freigeschaltet.`;
+      renderHypothesisState();
+    }else{
+      el.nameFeedback.className="feedback warn";
+      el.nameFeedback.textContent="Der Name passt noch nicht zur ausgewählten Struktur. Prüfe Stoffklasse und systematische bzw. gebräuchliche Benennung.";
+    }
   }
 
   function availableReferenceCandidates(){
