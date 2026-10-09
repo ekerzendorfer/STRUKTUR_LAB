@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.1",
+  "schema_version": "0.2.2",
   "note_de": "Kuratierte Unterrichtsdaten. Kein universeller Spektrensimulator.",
   "substances": [
     {
@@ -946,7 +946,7 @@
     },
     {
       "id": "SALICYLIC_ACID",
-      "implemented": false,
+      "implemented": true,
       "name_de": "Salicylsäure",
       "formula": "C7H6O3",
       "molar_mass": 138.12,
@@ -956,11 +956,289 @@
         "Phenol",
         "Aromat"
       ],
-      "difficulty": "experte",
-      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='192' y1='82' x2='245' y2='82'/><line x1='110' y1='35' x2='110' y2='10'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='88' y='12'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
+      "difficulty": "fortgeschritten",
+      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='165' y1='35' x2='184' y2='12'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='205' y='10'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
       "synonyms": [
         "Salicylsäure",
         "2-Hydroxybenzoesäure"
+      ],
+      "mass_measurement": {
+        "value": 138,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 39,
+            "intensity": 20
+          },
+          {
+            "mz": 64,
+            "intensity": 23
+          },
+          {
+            "mz": 92,
+            "intensity": 73
+          },
+          {
+            "mz": 105,
+            "intensity": 12
+          },
+          {
+            "mz": 120,
+            "intensity": 100
+          },
+          {
+            "mz": 138,
+            "intensity": 63
+          }
+        ],
+        "diagnostic_fragments": [
+          {
+            "mz": 138,
+            "label": "Molekülion",
+            "ion_formula": "C₇H₆O₃⁺·",
+            "pathway": "Elektronenstoß-Ionisation ohne Fragmentierung",
+            "note": "Das Molekülion bei m/z 138 passt zur molaren Masse der Verbindung."
+          },
+          {
+            "mz": 120,
+            "label": "Wasserverlust",
+            "ion_formula": "C₇H₄O₂⁺·",
+            "pathway": "M − H₂O; begünstigt durch die räumliche Nachbarschaft von OH- und COOH-Gruppe",
+            "note": "Der starke Verlust von 18 u ist für die ortho-Anordnung besonders lehrreich: benachbarte OH- und Carboxylgruppe ermöglichen die Wasserabspaltung."
+          },
+          {
+            "mz": 92,
+            "label": "Folgefragment",
+            "ion_formula": "C₆H₄O⁺·",
+            "pathway": "weiterer Verlust von CO aus dem Fragment bei m/z 120",
+            "note": "Vom Fragment m/z 120 führt der Verlust von 28 u (CO) zum markanten Ion bei m/z 92."
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach NIST/PubChem; Hauptpeaks 138, 120 und 92, Fragmentierung M−H₂O und anschließend −CO"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 3200,
+            "strength": 0.38,
+            "width": 220,
+            "shape": "broad"
+          },
+          {
+            "cm1": 2850,
+            "strength": 0.48,
+            "width": 520,
+            "shape": "broad"
+          },
+          {
+            "cm1": 1670,
+            "strength": 0.95,
+            "width": 38
+          },
+          {
+            "cm1": 1605,
+            "strength": 0.48,
+            "width": 35
+          },
+          {
+            "cm1": 1485,
+            "strength": 0.34,
+            "width": 38
+          },
+          {
+            "cm1": 1255,
+            "strength": 0.68,
+            "width": 48
+          },
+          {
+            "cm1": 760,
+            "strength": 0.48,
+            "width": 35
+          }
+        ],
+        "source_note": "didaktisch kuratierte Hauptbanden nach NIST-nahen Referenzdaten: breite O–H-Bereiche, C=O der aromatischen Carbonsäure, aromatische Ringbanden und C–O"
+      },
+      "h1_nmr": {
+        "solvent": "DMSO-d₆ · didaktisch kuratiert",
+        "signals": [
+          {
+            "id": "H_A",
+            "delta": 6.94,
+            "integration": 1,
+            "multiplicity": "d",
+            "j_hz": 8,
+            "exchangeable": false
+          },
+          {
+            "id": "H_B",
+            "delta": 6.98,
+            "integration": 1,
+            "multiplicity": "t",
+            "j_hz": 7.6,
+            "exchangeable": false
+          },
+          {
+            "id": "H_C",
+            "delta": 7.47,
+            "integration": 1,
+            "multiplicity": "t",
+            "j_hz": 7.7,
+            "exchangeable": false
+          },
+          {
+            "id": "H_D",
+            "delta": 7.82,
+            "integration": 1,
+            "multiplicity": "d",
+            "j_hz": 7.8,
+            "exchangeable": false
+          },
+          {
+            "id": "H_E",
+            "delta": 10.3,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          },
+          {
+            "id": "H_F",
+            "delta": 11.4,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          }
+        ],
+        "source_note": "aromatische Protonen an publizierten/experimentellen Salicylsäure-Daten orientiert; austauschbare OH-Signale bewusst didaktisch dargestellt und als lösungsmittelabhängig zu verstehen",
+        "proton_groups": [
+          {
+            "id": "H_A",
+            "label": "Aromatisches H neben OH",
+            "hotspots": [
+              {
+                "x": 110,
+                "y": 35,
+                "w": 34,
+                "h": 30
+              }
+            ],
+            "note": "Ein aromatisches Proton nahe der OH-Gruppe liegt relativ weit obenfeld und koppelt stark mit einem ortho-Nachbarn."
+          },
+          {
+            "id": "H_B",
+            "label": "Aromatisches H",
+            "hotspots": [
+              {
+                "x": 83,
+                "y": 82,
+                "w": 34,
+                "h": 30
+              }
+            ],
+            "note": "Dieses Proton liegt im aromatischen Bereich und koppelt mit den benachbarten Ringprotonen; vereinfacht erscheint ein Triplett-artiges Muster."
+          },
+          {
+            "id": "H_C",
+            "label": "Aromatisches H",
+            "hotspots": [
+              {
+                "x": 110,
+                "y": 129,
+                "w": 34,
+                "h": 30
+              }
+            ],
+            "note": "Die unterschiedliche Nachbarschaft zu OH und COOH führt zu einer anderen chemischen Verschiebung trotz gleicher Integration."
+          },
+          {
+            "id": "H_D",
+            "label": "Aromatisches H neben COOH",
+            "hotspots": [
+              {
+                "x": 165,
+                "y": 129,
+                "w": 34,
+                "h": 30
+              }
+            ],
+            "note": "Das Proton in Nachbarschaft zur Carboxylgruppe ist am stärksten entschirmt und erscheint am weitesten tieffeld im aromatischen Bereich."
+          },
+          {
+            "id": "H_E",
+            "label": "Phenolisches OH",
+            "hotspots": [
+              {
+                "x": 205,
+                "y": 10,
+                "w": 52,
+                "h": 30
+              }
+            ],
+            "note": "Das phenolische OH ist austauschbar. Die ortho-Nachbarschaft zur Carboxylgruppe und Wasserstoffbrücken können seine Lage deutlich beeinflussen."
+          },
+          {
+            "id": "H_F",
+            "label": "Carboxyl-OH",
+            "hotspots": [
+              {
+                "x": 292,
+                "y": 82,
+                "w": 72,
+                "h": 32
+              }
+            ],
+            "note": "Das Carboxylproton ist stark tieffeldverschoben, breit und austauschbar; seine genaue Lage ist experimentell variabel."
+          }
+        ]
+      },
+      "class_feedback": {
+        "Carbonsäure": "passt: sehr breite Säure-OH-Absorption, starke C=O-Bande und der bereits bekannte positive Hydrogencarbonat-Befund stützen eine aromatische Carbonsäure.",
+        "Aromat": "der aromatische Ring ist klar vorhanden, erklärt aber die Carboxylfunktion und die phenolische OH-Gruppe noch nicht vollständig.",
+        "Alkohol": "eine OH-Gruppe ist vorhanden, aber Carbonylbande, Säure-OH und Hydrogencarbonat-Befund sprechen gegen einen einfachen Alkohol.",
+        "Ether": "erklärt weder die breite O–H-Absorption noch die starke Carbonylbande.",
+        "Keton": "eine Carbonylgruppe allein erklärt weder die Säureeigenschaften noch die phenolische OH-Gruppe.",
+        "Ester": "die Voranalyse mit CO₂-Entwicklung und die breite Säure-OH-Bande sprechen gegen einen neutralen Ester als Hauptfunktion.",
+        "Aldehyd": "es fehlt ein typisches Aldehydproton; die Voranalyse stützt stattdessen eine Carbonsäure.",
+        "Amin": "N-bezogene Merkmale fehlen.",
+        "Amid": "N–H-/Amidmerkmale fehlen; die Säurebefunde passen besser zu einer Carbonsäure.",
+        "Alken": "ein isoliertes Alken erklärt die aromatischen und sauren Befunde nicht."
+      }
+    },
+    {
+      "id": "3_HYDROXYBENZOIC_ACID",
+      "implemented": false,
+      "name_de": "3-Hydroxybenzoesäure",
+      "formula": "C7H6O3",
+      "molar_mass": 138.12,
+      "primary_class": "Carbonsäure",
+      "functional_groups": [
+        "Carbonsäure",
+        "Phenol",
+        "Aromat"
+      ],
+      "difficulty": "fortgeschritten",
+      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='110' y1='35' x2='91' y2='12'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='70' y='10'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
+      "synonyms": [
+        "3-Hydroxybenzoesäure"
+      ]
+    },
+    {
+      "id": "4_HYDROXYBENZOIC_ACID",
+      "implemented": false,
+      "name_de": "4-Hydroxybenzoesäure",
+      "formula": "C7H6O3",
+      "molar_mass": 138.12,
+      "primary_class": "Carbonsäure",
+      "functional_groups": [
+        "Carbonsäure",
+        "Phenol",
+        "Aromat"
+      ],
+      "difficulty": "fortgeschritten",
+      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='83' y1='82' x2='42' y2='82'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='18' y='82'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
+      "synonyms": [
+        "4-Hydroxybenzoesäure"
       ]
     }
   ]
