@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.1";
+  const VERSION = "0.2.2";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -179,7 +179,7 @@
       const run=window.AnalytikBridge.getRun(runId);
       if(!run) throw new Error("Der Analyse-Run wurde nicht gefunden.");
       if(run.app_id!=="STRUKTUR_LAB") throw new Error("Der Run ist nicht für STRUKTUR_LAB bestimmt.");
-      if(!run.input || run.input.mode!=="gc_peak") throw new Error("Unbekannter Strukturauftrag.");
+      if(!run.input || !["gc_peak","solid_screening"].includes(run.input.mode)) throw new Error("Unbekannter Strukturauftrag.");
 
       bridgeRun=run;
       bridgeInput=run.input;
@@ -200,18 +200,51 @@
 
       if(el.modeLabel) el.modeLabel.textContent="Analytik-Hub";
       el.bridgeContext.classList.add("active");
-      el.bridgeSampleLabel.textContent=bridgeInput.display_label||"GC-Peak";
-      const peak=bridgeInput.source_peak||{};
-      const rt=Number.isFinite(Number(peak.retention_time_min)) ? Number(peak.retention_time_min).toFixed(2).replace(".",",")+" min" : "–";
-      const area=Number.isFinite(Number(peak.area_percent)) ? Number(peak.area_percent).toFixed(1).replace(".",",")+" %" : "–";
-      el.bridgePeakLabel.textContent=`${run.peak_id||"Peak"} · tR ${rt} · Fläche ${area}`;
-      el.bridgeMessage.textContent="Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
+      el.bridgeSampleLabel.textContent=bridgeInput.display_label||(bridgeInput.mode==="solid_screening"?"Unbekannter Feststoff":"GC-Peak");
+      if(bridgeInput.mode==="solid_screening"){
+        el.bridgePeakLabel.textContent="Vorwissen aus klassischer Feststoffanalyse";
+        el.bridgeMessage.textContent="Die Voranalyse grenzt funktionelle Gruppen ein, verrät aber keinen Stoffnamen. Nutze diese Befunde zusammen mit M, MS, IR und besonders ¹H-NMR.";
+        renderPriorFindings();
+      }else{
+        const peak=bridgeInput.source_peak||{};
+        const rt=Number.isFinite(Number(peak.retention_time_min)) ? Number(peak.retention_time_min).toFixed(2).replace(".",",")+" min" : "–";
+        const area=Number.isFinite(Number(peak.area_percent)) ? Number(peak.area_percent).toFixed(1).replace(".",",")+" %" : "–";
+        el.bridgePeakLabel.textContent=`${run.peak_id||"Peak"} · tR ${rt} · Fläche ${area}`;
+        el.bridgeMessage.textContent="Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
+      }
       updateBridgeControls();
     }catch(err){
       el.bridgeContext.classList.add("active","error");
       el.bridgeMessage.textContent="Hub-Verbindung fehlgeschlagen: "+err.message;
       el.bridgeSubmitBtn.disabled=true;
     }
+  }
+
+  function priorFeatureLabel(id){
+    const map={
+      carboxylic_acid:"Carbonsäurefunktion",
+      phenolic_oh:"phenolische OH-Gruppe",
+      aromatic_or_unsaturated:"Hinweis auf ungesättigtes/aromatisches System",
+      acidic_aqueous_phase:"saure wässrige Phase",
+      polar_character:"polarer Charakter"
+    };
+    return map[id]||id;
+  }
+
+  function priorStrengthLabel(value){
+    return ({strong:"stark gestützt",supported:"gestützt",indication:"Hinweis",observed:"beobachtet"})[value]||value||"Befund";
+  }
+
+  function renderPriorFindings(){
+    if(!el.priorFindings) return;
+    const findings=bridgeInput&&bridgeInput.prior_findings;
+    if(!findings||typeof findings!=="object"){el.priorFindings.hidden=true;return;}
+    const rows=Object.entries(findings).map(([id,v])=>{
+      const strength=typeof v==="string"?v:v&&v.strength;
+      return `<li><strong>${escapeHtml(priorFeatureLabel(id))}</strong> · ${escapeHtml(priorStrengthLabel(strength))}</li>`;
+    }).join("");
+    el.priorFindings.innerHTML=`<strong>Bereits bekannte Vorbefunde</strong><ul>${rows}</ul><span>Diese Hinweise schränken die Möglichkeiten ein, ersetzen aber nicht die instrumentelle Strukturaufklärung.</span>`;
+    el.priorFindings.hidden=false;
   }
 
   function updateBridgeControls(){
@@ -246,7 +279,7 @@
           formula:t.formula,
           primary_class:t.primary_class
         },
-        confirmation_required:"GC_REFERENCE_STANDARD"
+        confirmation_required:bridgeInput&&bridgeInput.mode==="solid_screening"?"MELTING_POINT_REFERENCE":"GC_REFERENCE_STANDARD"
       },
       student_interpretation:{
         selected_class:selectedClass,
