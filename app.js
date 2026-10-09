@@ -78,7 +78,7 @@
       "workbenchMsPanel","workbenchMsPeakList","workbenchMsDetail","workbenchIrPanel","workbenchIrGroupsToggle","workbenchIrFingerprintToggle",
       "workbenchNmrPanel","workbenchNmrSignalList","workbenchNmrStructure","workbenchNmrFeedback","workbenchCompareHint",
       "journalView","progressText","copyJournalBtn","resetCaseBtn","bridgeContext","bridgeSampleLabel","bridgePeakLabel",
-      "bridgeMessage","bridgeSubmitBtn","bridgeReturnBtn","modeLabel"]
+      "bridgeMessage","priorFindings","bridgeSubmitBtn","bridgeReturnBtn","modeLabel"]
       .forEach(id=>el[id]=document.getElementById(id));
   }
 
@@ -321,7 +321,7 @@
   function renderAll(){
     el.modeSelect.value=state.mode;el.caseSelect.value=state.caseId;
     const c=currentCase(),t=target();
-    el.caseLabel.textContent=bridgeMode&&bridgeRun ? (bridgeRun.peak_id||"GC-Peak")+" untersuchen" : c.label_de;
+    el.caseLabel.textContent=bridgeMode&&bridgeRun ? (bridgeInput&&bridgeInput.mode==="solid_screening"?"Feststoff untersuchen":(bridgeRun.peak_id||"GC-Peak")+" untersuchen") : c.label_de;
     el.caseIntro.textContent=bridgeMode&&bridgeInput
       ? (bridgeInput.assignment_text||"Struktur eines unbekannten GC-Peaks aus spektroskopischen Daten erschließen.")
       : c.intro_de;
