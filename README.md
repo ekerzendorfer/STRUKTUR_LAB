@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.2.1 – Ethylacetat-MS-Hilfe und Carbonyl-Feintuning  
+**Version:** v0.2.2 – Salicylsäure aus klassischer Voranalyse  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -147,3 +147,16 @@ Im Hub-Modus:
 - diagnostische Lehrpeaks: Molekülion m/z 88, Acylfragment CH₃CO⁺ bei m/z 43, Ethoxyfragment C₂H₅O⁺ bei m/z 45
 - bewusst keine vollständige Zuordnung aller Nebenpeaks
 - Carbonyl-Doppelbindungen bei Ethylacetat und Aceton geometrisch überarbeitet: beide Linien beginnen optisch am Carbonyl-C und verschmelzen nicht mehr mit benachbarten Einfachbindungen
+
+
+## v0.2.2 – Salicylsäure
+
+- Salicylsäure vollständig als fortgeschrittener Strukturfall kuratiert
+- M = 138 ± 1; EI-MS mit Hauptpeaks m/z 138, 120 und 92
+- m/z 120 als didaktisch besonders wertvoller Wasserverlust der ortho-Hydroxycarbonsäure
+- IR mit Carbonsäure-OH, phenolischer OH, C=O und aromatischen Ringmerkmalen
+- ¹H-NMR mit vier unterschiedlichen aromatischen Protonen sowie zwei bewusst als variabel gekennzeichneten austauschbaren OH-Signalen
+- Strukturvergleich zwischen 2-, 3- und 4-Hydroxybenzoesäure
+- neuer Hub-Modus `solid_screening`: Vorbefunde aus der klassischen Feststoffanalyse werden sichtbar als Startwissen übernommen
+- die Vorbefunde verraten keinen Stoffnamen; die Stellung der Gruppen muss instrumentell begründet werden
+- nach gestützter Salicylsäure-Hypothese ist als nächster Bestätigungsschritt ein Schmelz-/Mischschmelzpunkt vorgesehen, nicht GC
