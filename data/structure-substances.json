@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.2",
+  "schema_version": "0.2.3",
   "note_de": "Kuratierte Unterrichtsdaten. Kein universeller Spektrensimulator.",
   "substances": [
     {
@@ -957,7 +957,7 @@
         "Aromat"
       ],
       "difficulty": "fortgeschritten",
-      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='165' y1='35' x2='184' y2='12'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='205' y='10'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
+      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><circle cx='138' cy='82' r='31'/><line x1='165' y1='35' x2='184' y2='12'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='205' y='10'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
       "synonyms": [
         "Salicylsäure",
         "2-Hydroxybenzoesäure"
@@ -1207,7 +1207,7 @@
     },
     {
       "id": "3_HYDROXYBENZOIC_ACID",
-      "implemented": false,
+      "implemented": true,
       "name_de": "3-Hydroxybenzoesäure",
       "formula": "C7H6O3",
       "molar_mass": 138.12,
@@ -1218,14 +1218,141 @@
         "Aromat"
       ],
       "difficulty": "fortgeschritten",
-      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='110' y1='35' x2='91' y2='12'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='70' y='10'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
+      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><circle cx='138' cy='82' r='31'/><line x1='110' y1='35' x2='91' y2='12'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='70' y='10'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
       "synonyms": [
         "3-Hydroxybenzoesäure"
-      ]
+      ],
+      "mass_measurement": {
+        "value": 138,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 39,
+            "intensity": 45
+          },
+          {
+            "mz": 65,
+            "intensity": 41
+          },
+          {
+            "mz": 93,
+            "intensity": 40
+          },
+          {
+            "mz": 121,
+            "intensity": 81
+          },
+          {
+            "mz": 138,
+            "intensity": 100
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach PubChem/MassBank/NIST; Basispeak m/z 138, starkes Fragment m/z 121"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 3300,
+            "strength": 0.42,
+            "width": 250,
+            "shape": "broad"
+          },
+          {
+            "cm1": 2750,
+            "strength": 0.5,
+            "width": 580,
+            "shape": "broad"
+          },
+          {
+            "cm1": 1680,
+            "strength": 0.92,
+            "width": 40
+          },
+          {
+            "cm1": 1600,
+            "strength": 0.46,
+            "width": 36
+          },
+          {
+            "cm1": 1450,
+            "strength": 0.3,
+            "width": 40
+          },
+          {
+            "cm1": 1285,
+            "strength": 0.62,
+            "width": 50
+          },
+          {
+            "cm1": 880,
+            "strength": 0.44,
+            "width": 34
+          },
+          {
+            "cm1": 760,
+            "strength": 0.36,
+            "width": 34
+          }
+        ],
+        "source_note": "didaktisch kuratierte Hauptbanden nach NIST/Coblentz-Referenzspektrum der festen 3-Hydroxybenzoesäure"
+      },
+      "h1_nmr": {
+        "solvent": "DMSO-d₆ · 400 MHz",
+        "signals": [
+          {
+            "id": "M_A",
+            "delta": 6.95,
+            "integration": 1,
+            "multiplicity": "d",
+            "j_hz": 7.6,
+            "exchangeable": false
+          },
+          {
+            "id": "M_B",
+            "delta": 7.24,
+            "integration": 1,
+            "multiplicity": "t",
+            "j_hz": 7.6,
+            "exchangeable": false
+          },
+          {
+            "id": "M_C",
+            "delta": 7.29,
+            "integration": 1,
+            "multiplicity": "s",
+            "exchangeable": false
+          },
+          {
+            "id": "M_D",
+            "delta": 7.33,
+            "integration": 1,
+            "multiplicity": "d",
+            "j_hz": 7.6,
+            "exchangeable": false
+          },
+          {
+            "id": "M_E",
+            "delta": 9.75,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          },
+          {
+            "id": "M_F",
+            "delta": 12.74,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          }
+        ],
+        "source_note": "¹H-NMR nach publizierter 400-MHz-DMSO-d6-Charakterisierung: 6.95, 7.24, 7.29, 7.33, 9.75 und 12.74 ppm"
+      }
     },
     {
       "id": "4_HYDROXYBENZOIC_ACID",
-      "implemented": false,
+      "implemented": true,
       "name_de": "4-Hydroxybenzoesäure",
       "formula": "C7H6O3",
       "molar_mass": 138.12,
@@ -1236,10 +1363,122 @@
         "Aromat"
       ],
       "difficulty": "fortgeschritten",
-      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><line x1='98' y1='58' x2='116' y2='43'/><line x1='155' y1='44' x2='180' y2='81'/><line x1='155' y1='119' x2='116' y2='119'/><line x1='83' y1='82' x2='42' y2='82'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='18' y='82'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
+      "structure_svg": "<svg viewBox='0 0 390 165' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><polygon points='110,35 165,35 192,82 165,129 110,129 83,82'/><circle cx='138' cy='82' r='31'/><line x1='83' y1='82' x2='42' y2='82'/><line x1='192' y1='82' x2='240' y2='82'/></g><g fill='currentColor' font-family='system-ui' font-size='21' text-anchor='middle' dominant-baseline='middle'><text x='18' y='82'>OH</text><text x='292' y='82'>COOH</text></g></svg>",
       "synonyms": [
         "4-Hydroxybenzoesäure"
-      ]
+      ],
+      "mass_measurement": {
+        "value": 138,
+        "uncertainty": 1
+      },
+      "ms": {
+        "peaks": [
+          {
+            "mz": 39,
+            "intensity": 19
+          },
+          {
+            "mz": 65,
+            "intensity": 24
+          },
+          {
+            "mz": 93,
+            "intensity": 21
+          },
+          {
+            "mz": 121,
+            "intensity": 100
+          },
+          {
+            "mz": 138,
+            "intensity": 70
+          }
+        ],
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach PubChem/MassBank; Basispeak m/z 121, Molekülion m/z 138 deutlich sichtbar"
+      },
+      "ir": {
+        "bands": [
+          {
+            "cm1": 3360,
+            "strength": 0.38,
+            "width": 220,
+            "shape": "broad"
+          },
+          {
+            "cm1": 2700,
+            "strength": 0.5,
+            "width": 600,
+            "shape": "broad"
+          },
+          {
+            "cm1": 1670,
+            "strength": 0.94,
+            "width": 40
+          },
+          {
+            "cm1": 1605,
+            "strength": 0.48,
+            "width": 36
+          },
+          {
+            "cm1": 1515,
+            "strength": 0.42,
+            "width": 36
+          },
+          {
+            "cm1": 1280,
+            "strength": 0.66,
+            "width": 48
+          },
+          {
+            "cm1": 1165,
+            "strength": 0.38,
+            "width": 42
+          },
+          {
+            "cm1": 850,
+            "strength": 0.5,
+            "width": 34
+          }
+        ],
+        "source_note": "didaktisch kuratierte Hauptbanden nach NIST/Coblentz-Referenzspektrum der 4-Hydroxybenzoesäure"
+      },
+      "h1_nmr": {
+        "solvent": "DMSO-d₆ · didaktisch aus experimentellen Referenzdaten reduziert",
+        "signals": [
+          {
+            "id": "P_A",
+            "delta": 6.84,
+            "integration": 2,
+            "multiplicity": "d",
+            "j_hz": 8.7,
+            "exchangeable": false
+          },
+          {
+            "id": "P_B",
+            "delta": 7.8,
+            "integration": 2,
+            "multiplicity": "d",
+            "j_hz": 8.7,
+            "exchangeable": false
+          },
+          {
+            "id": "P_C",
+            "delta": 10.2,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          },
+          {
+            "id": "P_D",
+            "delta": 12.4,
+            "integration": 1,
+            "multiplicity": "br s",
+            "exchangeable": true
+          }
+        ],
+        "source_note": "experimentelle DMSO-d6-Daten zeigen die para-Symmetrie besonders deutlich: zwei aromatische 2H-Signalgruppen um 6.8 und 7.8 ppm"
+      }
     }
   ]
 }
