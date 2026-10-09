@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.3";
+  const VERSION = "0.2.4";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -74,7 +74,7 @@
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
       "nmrRegionsToggle","nmrNote","classGrid","classFeedback","structureStage","structureGrid","hypothesisNote",
       "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","spectraWorkbenchStage",
-      "workbenchCandidateWrap","workbenchCandidateSelect","workbenchCanvas","workbenchLegend","workbenchLearnPanel",
+      "workbenchCandidateWrap","workbenchCandidateSelect","workbenchShowOriginalWrap","workbenchShowOriginalToggle","workbenchCanvas","workbenchLegend","workbenchLearnPanel",
       "workbenchMsPanel","workbenchMsPeakList","workbenchMsDetail","workbenchIrPanel","workbenchIrGroupsToggle","workbenchIrFingerprintToggle",
       "workbenchNmrPanel","workbenchNmrSignalList","workbenchNmrStructure","workbenchNmrFeedback","workbenchCompareHint",
       "journalView","progressText","copyJournalBtn","resetCaseBtn","bridgeContext","bridgeSampleLabel","bridgePeakLabel",
@@ -124,6 +124,11 @@
       save();
       renderWorkbench();
     });
+    el.workbenchShowOriginalToggle.addEventListener("change",()=>{
+      state.compareShowOriginal=el.workbenchShowOriginalToggle.checked;
+      save();
+      renderWorkbenchComparison();
+    });
     el.workbenchIrGroupsToggle.addEventListener("change",renderWorkbench);
     el.workbenchIrFingerprintToggle.addEventListener("change",renderWorkbench);
     el.workbenchMsPeakList.addEventListener("click",e=>{
@@ -163,6 +168,7 @@
           state.candidateOrder=shuffledCandidateIds(wanted.caseId);
         }
         currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;workbenchMethod=old.workbenchMethod||"ms";workbenchMode=old.workbenchMode||"learn";
+        if(typeof state.compareShowOriginal!=="boolean") state.compareShowOriginal=true;
         localStorage.setItem(storageKey(),JSON.stringify(state));
         return;
       }
@@ -305,7 +311,7 @@
     return ids;
   }
 
-  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn"};}
+  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn",compareShowOriginal:true};}
   function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;state.workbenchMethod=workbenchMethod;state.workbenchMode=workbenchMode;localStorage.setItem(storageKey(),JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
@@ -609,6 +615,8 @@
 
     const compare=workbenchMode==="compare";
     el.workbenchCandidateWrap.hidden=!compare;
+    el.workbenchShowOriginalWrap.hidden=!compare;
+    el.workbenchShowOriginalToggle.checked=state.compareShowOriginal!==false;
     el.workbenchCompareHint.hidden=!compare;
     el.workbenchLearnPanel.hidden=compare;
 
@@ -629,15 +637,17 @@
 
   function renderWorkbenchComparison(){
     const ref=referenceSubstance(),unknown=target(),ctx=el.workbenchCanvas.getContext("2d");
+    const showOriginal=state.compareShowOriginal!==false;
+    const originalLabel=showOriginal?"unbekannt durchgezogen · ":"Original ausgeblendet · ";
     if(workbenchMethod==="ms"){
-      drawReferenceMs(ctx,el.workbenchCanvas,unknown.ms?.peaks||[],ref.ms?.peaks||[]);
-      el.workbenchLegend.textContent=`MS: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
+      drawReferenceMs(ctx,el.workbenchCanvas,showOriginal?(unknown.ms?.peaks||[]):[],ref.ms?.peaks||[]);
+      el.workbenchLegend.textContent=`MS: ${originalLabel}${ref.name_de} gestrichelt`;
     }else if(workbenchMethod==="nmr"){
-      drawReferenceNmr(ctx,el.workbenchCanvas,unknown.h1_nmr?.signals||[],ref.h1_nmr?.signals||[]);
-      el.workbenchLegend.textContent=`¹H-NMR: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
+      drawReferenceNmr(ctx,el.workbenchCanvas,showOriginal?(unknown.h1_nmr?.signals||[]):[],ref.h1_nmr?.signals||[]);
+      el.workbenchLegend.textContent=`¹H-NMR: ${originalLabel}${ref.name_de} gestrichelt`;
     }else{
-      drawReferenceIr(ctx,el.workbenchCanvas,unknown.ir?.bands||[],ref.ir?.bands||[]);
-      el.workbenchLegend.textContent=`IR: unbekannt durchgezogen · ${ref.name_de} gestrichelt`;
+      drawReferenceIr(ctx,el.workbenchCanvas,showOriginal?(unknown.ir?.bands||[]):[],ref.ir?.bands||[]);
+      el.workbenchLegend.textContent=`IR: ${originalLabel}${ref.name_de} gestrichelt`;
     }
     el.workbenchCanvas._workbenchPlot={type:"compare"};
   }

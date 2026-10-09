@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.2.3 – Hydroxybenzoesäure-Kandidatenvergleich  
+**Version:** v0.2.4 – Kandidatenvergleich mit ausblendbarem Originalspektrum  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -170,3 +170,11 @@ Im Hub-Modus:
 - 4-Hydroxybenzoesäure: para-Symmetrie mit zwei aromatischen 2H-Dubletts; EI-MS mit m/z 121 als Basispeak
 - alle drei Hydroxybenzoesäure-Strukturkarten verwenden einen Aromaten-Kreis statt gezeichneter alternierender Doppelbindungen
 - ¹H-NMR-Achse erweitert sich bei stark tieffeldverschobenen Carboxylprotonen automatisch bis 14 ppm
+
+
+## v0.2.4 – Originalspektrum im Kandidatenvergleich ausblendbar
+
+- im Kandidatenvergleich kann das unbekannte Originalspektrum optional ausgeblendet werden
+- der gewählte Kandidat bleibt als gestricheltes Referenzspektrum sichtbar
+- Einstellung gilt für MS, IR und ¹H-NMR und wird im lokalen Zustand gespeichert
+- besonders bei dicht liegenden aromatischen ¹H-NMR-Signalen verbessert das die Lesbarkeit
