@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.2.2 – Salicylsäure aus klassischer Voranalyse  
+**Version:** v0.2.3 – Hydroxybenzoesäure-Kandidatenvergleich  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -160,3 +160,13 @@ Im Hub-Modus:
 - neuer Hub-Modus `solid_screening`: Vorbefunde aus der klassischen Feststoffanalyse werden sichtbar als Startwissen übernommen
 - die Vorbefunde verraten keinen Stoffnamen; die Stellung der Gruppen muss instrumentell begründet werden
 - nach gestützter Salicylsäure-Hypothese ist als nächster Bestätigungsschritt ein Schmelz-/Mischschmelzpunkt vorgesehen, nicht GC
+
+
+## v0.2.3 – vollständiger Hydroxybenzoesäure-Vergleich
+
+- 3- und 4-Hydroxybenzoesäure besitzen nun vollständige kuratierte MS-, IR- und ¹H-NMR-Datensätze
+- dadurch sind beide Isomere in der Spektrenwerkstatt wirklich auswählbar
+- 3-Hydroxybenzoesäure: vier verschiedene aromatische 1H-Signale; EI-MS mit M⁺ bei m/z 138 als Basispeak
+- 4-Hydroxybenzoesäure: para-Symmetrie mit zwei aromatischen 2H-Dubletts; EI-MS mit m/z 121 als Basispeak
+- alle drei Hydroxybenzoesäure-Strukturkarten verwenden einen Aromaten-Kreis statt gezeichneter alternierender Doppelbindungen
+- ¹H-NMR-Achse erweitert sich bei stark tieffeldverschobenen Carboxylprotonen automatisch bis 14 ppm
