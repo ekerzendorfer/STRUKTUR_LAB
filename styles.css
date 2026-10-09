@@ -87,3 +87,7 @@ footer{max-width:1480px;margin:auto;padding:0 20px 24px;text-align:center;color:
 .bridge-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bridge-actions button{width:auto;white-space:nowrap}
 .bridge-actions button:disabled{opacity:.42}
 @media(max-width:760px){.bridge-context{margin-inline:12px;align-items:stretch;flex-direction:column}.bridge-actions{justify-content:stretch}.bridge-actions button{width:100%}}
+
+.prior-findings{margin-top:9px;padding:9px 11px;border:1px solid rgba(96,165,250,.35);border-radius:10px;background:rgba(9,23,40,.45);max-width:760px}
+.prior-findings>strong{color:#d8e9fb}.prior-findings ul{margin:6px 0;padding-left:20px;font-size:.84rem;color:#d0deec}
+.prior-findings li+li{margin-top:3px}.prior-findings li strong{display:inline;color:#9fe2ea}.prior-findings span{display:block;color:#8fa7bf;font-size:.8rem}

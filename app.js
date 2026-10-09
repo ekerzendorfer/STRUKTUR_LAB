@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.1";
+  const VERSION = "0.2.3";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -78,7 +78,7 @@
       "workbenchMsPanel","workbenchMsPeakList","workbenchMsDetail","workbenchIrPanel","workbenchIrGroupsToggle","workbenchIrFingerprintToggle",
       "workbenchNmrPanel","workbenchNmrSignalList","workbenchNmrStructure","workbenchNmrFeedback","workbenchCompareHint",
       "journalView","progressText","copyJournalBtn","resetCaseBtn","bridgeContext","bridgeSampleLabel","bridgePeakLabel",
-      "bridgeMessage","bridgeSubmitBtn","bridgeReturnBtn","modeLabel"]
+      "bridgeMessage","priorFindings","bridgeSubmitBtn","bridgeReturnBtn","modeLabel"]
       .forEach(id=>el[id]=document.getElementById(id));
   }
 
@@ -179,7 +179,7 @@
       const run=window.AnalytikBridge.getRun(runId);
       if(!run) throw new Error("Der Analyse-Run wurde nicht gefunden.");
       if(run.app_id!=="STRUKTUR_LAB") throw new Error("Der Run ist nicht für STRUKTUR_LAB bestimmt.");
-      if(!run.input || run.input.mode!=="gc_peak") throw new Error("Unbekannter Strukturauftrag.");
+      if(!run.input || !["gc_peak","solid_screening"].includes(run.input.mode)) throw new Error("Unbekannter Strukturauftrag.");
 
       bridgeRun=run;
       bridgeInput=run.input;
@@ -200,18 +200,51 @@
 
       if(el.modeLabel) el.modeLabel.textContent="Analytik-Hub";
       el.bridgeContext.classList.add("active");
-      el.bridgeSampleLabel.textContent=bridgeInput.display_label||"GC-Peak";
-      const peak=bridgeInput.source_peak||{};
-      const rt=Number.isFinite(Number(peak.retention_time_min)) ? Number(peak.retention_time_min).toFixed(2).replace(".",",")+" min" : "–";
-      const area=Number.isFinite(Number(peak.area_percent)) ? Number(peak.area_percent).toFixed(1).replace(".",",")+" %" : "–";
-      el.bridgePeakLabel.textContent=`${run.peak_id||"Peak"} · tR ${rt} · Fläche ${area}`;
-      el.bridgeMessage.textContent="Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
+      el.bridgeSampleLabel.textContent=bridgeInput.display_label||(bridgeInput.mode==="solid_screening"?"Unbekannter Feststoff":"GC-Peak");
+      if(bridgeInput.mode==="solid_screening"){
+        el.bridgePeakLabel.textContent="Vorwissen aus klassischer Feststoffanalyse";
+        el.bridgeMessage.textContent="Die Voranalyse grenzt funktionelle Gruppen ein, verrät aber keinen Stoffnamen. Nutze diese Befunde zusammen mit M, MS, IR und besonders ¹H-NMR.";
+        renderPriorFindings();
+      }else{
+        const peak=bridgeInput.source_peak||{};
+        const rt=Number.isFinite(Number(peak.retention_time_min)) ? Number(peak.retention_time_min).toFixed(2).replace(".",",")+" min" : "–";
+        const area=Number.isFinite(Number(peak.area_percent)) ? Number(peak.area_percent).toFixed(1).replace(".",",")+" %" : "–";
+        el.bridgePeakLabel.textContent=`${run.peak_id||"Peak"} · tR ${rt} · Fläche ${area}`;
+        el.bridgeMessage.textContent="Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
+      }
       updateBridgeControls();
     }catch(err){
       el.bridgeContext.classList.add("active","error");
       el.bridgeMessage.textContent="Hub-Verbindung fehlgeschlagen: "+err.message;
       el.bridgeSubmitBtn.disabled=true;
     }
+  }
+
+  function priorFeatureLabel(id){
+    const map={
+      carboxylic_acid:"Carbonsäurefunktion",
+      phenolic_oh:"phenolische OH-Gruppe",
+      aromatic_or_unsaturated:"Hinweis auf ungesättigtes/aromatisches System",
+      acidic_aqueous_phase:"saure wässrige Phase",
+      polar_character:"polarer Charakter"
+    };
+    return map[id]||id;
+  }
+
+  function priorStrengthLabel(value){
+    return ({strong:"stark gestützt",supported:"gestützt",indication:"Hinweis",observed:"beobachtet"})[value]||value||"Befund";
+  }
+
+  function renderPriorFindings(){
+    if(!el.priorFindings) return;
+    const findings=bridgeInput&&bridgeInput.prior_findings;
+    if(!findings||typeof findings!=="object"){el.priorFindings.hidden=true;return;}
+    const rows=Object.entries(findings).map(([id,v])=>{
+      const strength=typeof v==="string"?v:v&&v.strength;
+      return `<li><strong>${escapeHtml(priorFeatureLabel(id))}</strong> · ${escapeHtml(priorStrengthLabel(strength))}</li>`;
+    }).join("");
+    el.priorFindings.innerHTML=`<strong>Bereits bekannte Vorbefunde</strong><ul>${rows}</ul><span>Diese Hinweise schränken die Möglichkeiten ein, ersetzen aber nicht die instrumentelle Strukturaufklärung.</span>`;
+    el.priorFindings.hidden=false;
   }
 
   function updateBridgeControls(){
@@ -246,7 +279,7 @@
           formula:t.formula,
           primary_class:t.primary_class
         },
-        confirmation_required:"GC_REFERENCE_STANDARD"
+        confirmation_required:bridgeInput&&bridgeInput.mode==="solid_screening"?"MELTING_POINT_REFERENCE":"GC_REFERENCE_STANDARD"
       },
       student_interpretation:{
         selected_class:selectedClass,
@@ -288,7 +321,7 @@
   function renderAll(){
     el.modeSelect.value=state.mode;el.caseSelect.value=state.caseId;
     const c=currentCase(),t=target();
-    el.caseLabel.textContent=bridgeMode&&bridgeRun ? (bridgeRun.peak_id||"GC-Peak")+" untersuchen" : c.label_de;
+    el.caseLabel.textContent=bridgeMode&&bridgeRun ? (bridgeInput&&bridgeInput.mode==="solid_screening"?"Feststoff untersuchen":(bridgeRun.peak_id||"GC-Peak")+" untersuchen") : c.label_de;
     el.caseIntro.textContent=bridgeMode&&bridgeInput
       ? (bridgeInput.assignment_text||"Struktur eines unbekannten GC-Peaks aus spektroskopischen Daten erschließen.")
       : c.intro_de;
@@ -478,15 +511,25 @@
   function multiplicityLines(sig){const map={s:[1],t:[1,2,1],q:[1,3,3,1],d:[1,1],"br s":[1]};return map[sig.multiplicity]||[1];}
   function drawNmr(){
     const canvas=el.nmrCanvas,ctx=canvas.getContext("2d"),signals=target().h1_nmr?.signals||[];baseCanvas(ctx,canvas);const p={l:65,r:25,t:25,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
-    if(el.nmrRegionsToggle.checked){const regs=[[2.5,0,"Alkyl"],[5,3,"C neben O/N/X"],[8.5,6,"Aromat"],[10,9,"Aldehyd"],[13,10,"COOH"]];ctx.font="11px system-ui";for(const [hi,lo,label] of regs){const x1=p.l+w*(12-hi)/12,x2=p.l+w*(12-lo)/12;ctx.fillStyle="rgba(96,165,250,.09)";ctx.fillRect(x1,p.t,x2-x1,h);ctx.fillStyle="#82a9d9";ctx.fillText(label,x1+3,p.t+14);}}
-    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",12,0,0,1,true);
+    const xMax=nmrAxisMax();
+    if(el.nmrRegionsToggle.checked){const regs=[[2.5,0,"Alkyl"],[5,3,"C neben O/N/X"],[8.5,6,"Aromat"],[10,9,"Aldehyd"],[13,10,"COOH"]];ctx.font="11px system-ui";for(const [hi,lo,label] of regs){const x1=p.l+w*(xMax-hi)/xMax,x2=p.l+w*(xMax-lo)/xMax;ctx.fillStyle="rgba(96,165,250,.09)";ctx.fillRect(x1,p.t,x2-x1,h);ctx.fillStyle="#82a9d9";ctx.fillText(label,x1+3,p.t+14);}}
+    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",xMax,0,0,1,true);
     ctx.strokeStyle="#6ae2ec";ctx.lineWidth=2;const maxInt=Math.max(1,...signals.map(s=>s.integration));
-    signals.forEach(sig=>{const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(12-sig.delta)/12;const rel=sig.integration/maxInt;lines.forEach((amp,i)=>{const x=baseX-total/2+i*spacing;let peakHeight=h*.82*rel*(amp/Math.max(...lines));if(sig.exchangeable) peakHeight=Math.max(peakHeight,h*.28);const y=p.t+h-peakHeight;ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,y);ctx.stroke();});if(sig.multiplicity==="br s"){const broadHeight=Math.max(h*.40,h*.82*Math.max(rel,0.35));ctx.globalAlpha=.22;ctx.lineWidth=16;ctx.beginPath();ctx.moveTo(baseX,p.t+h);ctx.lineTo(baseX,p.t+h-broadHeight);ctx.stroke();ctx.globalAlpha=.55;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(baseX,p.t+h);ctx.lineTo(baseX,p.t+h-broadHeight);ctx.stroke();ctx.globalAlpha=1;ctx.lineWidth=2;}});
-    canvas._plot={type:"nmr",p,w,h,signals};
+    signals.forEach(sig=>{const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(xMax-sig.delta)/xMax;const rel=sig.integration/maxInt;lines.forEach((amp,i)=>{const x=baseX-total/2+i*spacing;let peakHeight=h*.82*rel*(amp/Math.max(...lines));if(sig.exchangeable) peakHeight=Math.max(peakHeight,h*.28);const y=p.t+h-peakHeight;ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,y);ctx.stroke();});if(sig.multiplicity==="br s"){const broadHeight=Math.max(h*.40,h*.82*Math.max(rel,0.35));ctx.globalAlpha=.22;ctx.lineWidth=16;ctx.beginPath();ctx.moveTo(baseX,p.t+h);ctx.lineTo(baseX,p.t+h-broadHeight);ctx.stroke();ctx.globalAlpha=.55;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(baseX,p.t+h);ctx.lineTo(baseX,p.t+h-broadHeight);ctx.stroke();ctx.globalAlpha=1;ctx.lineWidth=2;}});
+    canvas._plot={type:"nmr",p,w,h,signals,xMax};
     const ratio=signals.map(s=>s.integration).join(" : ");
     el.nmrSignalTable.innerHTML=signals.map((s,i)=>`<span class="signal-chip"><strong>Signal ${i+1}</strong> · δ ${s.delta.toLocaleString("de-AT")} ppm · ${s.integration} H · ${s.multiplicity}${s.exchangeable?" · austauschbar":""}</span>`).join("")+`<span class="signal-chip meta">relative Integrale: ${ratio}</span>`;
   }
-  function handleNmrClick(evt){const c=el.nmrCanvas,o=c._plot;if(!o)return;const q=canvasPoint(evt,c);let best=null,dist=24;for(const s of o.signals){const x=o.p.l+o.w*(12-s.delta)/12,d=Math.abs(q.x-x);if(d<dist){dist=d;best=s;}}el.nmrReadout.textContent=best?`δ ${best.delta.toLocaleString("de-AT")} ppm · Integral ${best.integration} H · ${best.multiplicity}${best.exchangeable?" · austauschbares Proton":""}`:"Kein Signal in unmittelbarer Nähe.";}
+  function handleNmrClick(evt){const c=el.nmrCanvas,o=c._plot;if(!o)return;const q=canvasPoint(evt,c);let best=null,dist=24;for(const s of o.signals){const x=o.p.l+o.w*((o.xMax||12)-s.delta)/(o.xMax||12),d=Math.abs(q.x-x);if(d<dist){dist=d;best=s;}}el.nmrReadout.textContent=best?`δ ${best.delta.toLocaleString("de-AT")} ppm · Integral ${best.integration} H · ${best.multiplicity}${best.exchangeable?" · austauschbares Proton":""}`:"Kein Signal in unmittelbarer Nähe.";}
+
+  function nmrAxisMax(){
+    const values=[];
+    const add=sigs=>(sigs||[]).forEach(s=>{if(Number.isFinite(Number(s.delta))) values.push(Number(s.delta));});
+    add(target()?.h1_nmr?.signals);
+    if(referenceCandidateId) add(referenceSubstance()?.h1_nmr?.signals);
+    const max=Math.max(12,...values);
+    return max>12 ? Math.ceil(max+0.5) : 12;
+  }
 
   function baseCanvas(ctx,canvas){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#07101b";ctx.fillRect(0,0,canvas.width,canvas.height);}
   function gridAxes(ctx,p,w,h,xLabel,yLabel,xStart,xEnd,yMin,yMax,reversed){
@@ -535,13 +578,16 @@
   function drawReferenceNmr(ctx,canvas,unknown,reference){
     baseCanvas(ctx,canvas);
     const p={l:65,r:25,t:30,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
-    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",12,0,0,1,true);
+    const allSignals=[...(unknown||[]),...(reference||[])];
+    const xMax=Math.max(12,...allSignals.map(s=>Number(s.delta)||0))>12
+      ? Math.ceil(Math.max(...allSignals.map(s=>Number(s.delta)||0))+0.5) : 12;
+    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",xMax,0,0,1,true);
 
     function trace(signals,stroke,width,dash,alpha){
       const maxInt=Math.max(1,...(signals||[]).map(s=>s.integration));
       ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.globalAlpha=alpha;ctx.setLineDash(dash);
       (signals||[]).forEach(sig=>{
-        const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(12-sig.delta)/12,rel=sig.integration/maxInt;
+        const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(xMax-sig.delta)/xMax,rel=sig.integration/maxInt;
         lines.forEach((amp,i)=>{
           const x=baseX-total/2+i*spacing;
           let peakHeight=h*.82*rel*(amp/Math.max(...lines));
@@ -668,11 +714,12 @@
     const canvas=el.workbenchCanvas,ctx=canvas.getContext("2d"),signals=target().h1_nmr?.signals||[],groups=protonGroups();
     baseCanvas(ctx,canvas);
     const p={l:65,r:25,t:28,b:55},w=canvas.width-p.l-p.r,h=canvas.height-p.t-p.b;
-    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",12,0,0,1,true);
+    const xMax=nmrAxisMax();
+    gridAxes(ctx,p,w,h,"δ / ppm","rel. Signal",xMax,0,0,1,true);
     const maxInt=Math.max(1,...signals.map(s=>s.integration));
 
     signals.forEach(sig=>{
-      const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(12-sig.delta)/12,rel=sig.integration/maxInt,active=activeSignalId===sig.id;
+      const lines=multiplicityLines(sig),spacing=6,total=(lines.length-1)*spacing,baseX=p.l+w*(xMax-sig.delta)/xMax,rel=sig.integration/maxInt,active=activeSignalId===sig.id;
       ctx.strokeStyle=active?"#f5c66a":"#6ae2ec";
       ctx.lineWidth=active?4:2.4;
       lines.forEach((amp,i)=>{
@@ -682,7 +729,7 @@
         ctx.beginPath();ctx.moveTo(x,p.t+h);ctx.lineTo(x,p.t+h-peakHeight);ctx.stroke();
       });
     });
-    canvas._workbenchPlot={type:"nmr-learn",p,w,h,signals};
+    canvas._workbenchPlot={type:"nmr-learn",p,w,h,signals,xMax};
     el.workbenchLegend.textContent=activeSignalId?"¹H-NMR-Lernansicht · ausgewähltes Signal hervorgehoben":"¹H-NMR-Lernansicht · Signal auswählen, um die Protonengruppe zu verknüpfen";
 
     el.workbenchNmrSignalList.innerHTML=signals.map((sig,i)=>{
@@ -736,7 +783,7 @@
     if(workbenchMethod==="nmr" && o.type==="nmr-learn"){
       let best=null,dist=28;
       for(const sig of o.signals){
-        const x=o.p.l+o.w*(12-sig.delta)/12,d=Math.abs(q.x-x);
+        const x=o.p.l+o.w*((o.xMax||12)-sig.delta)/(o.xMax||12),d=Math.abs(q.x-x);
         if(d<dist){dist=d;best=sig;}
       }
       if(best){activeSignalId=best.id;renderWorkbench();}

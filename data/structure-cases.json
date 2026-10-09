@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.4",
+  "schema_version": "0.2.2",
   "classes": [
     "Alkohol",
     "Ether",
@@ -93,6 +93,22 @@
         "DIMETHYL_ETHER"
       ],
       "intro_de": "Ein sekundärer Alkohol soll anhand von MS, IR und besonders ¹H-NMR von einem primären Isomer unterschieden werden.",
+      "formula_support": {
+        "basic": "molecular",
+        "expert": "none"
+      }
+    },
+    {
+      "id": "CASE_F",
+      "label_de": "Unbekannt F · aromatische Hydroxycarbonsäure",
+      "target_substance_id": "SALICYLIC_ACID",
+      "level": "fortgeschritten",
+      "candidate_ids": [
+        "SALICYLIC_ACID",
+        "3_HYDROXYBENZOIC_ACID",
+        "4_HYDROXYBENZOIC_ACID"
+      ],
+      "intro_de": "Ein weißer organischer Feststoff wurde klassisch voruntersucht. Die Strukturmerkmale sind eingegrenzt; nun soll die Stellung der Gruppen am aromatischen System mit M, MS, IR und besonders ¹H-NMR geklärt werden.",
       "formula_support": {
         "basic": "molecular",
         "expert": "none"
