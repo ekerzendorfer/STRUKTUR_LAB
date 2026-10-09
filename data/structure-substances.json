@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.4",
+  "schema_version": "0.2.1",
   "note_de": "Kuratierte Unterrichtsdaten. Kein universeller Spektrensimulator.",
   "substances": [
     {
@@ -289,7 +289,7 @@
         "Ester"
       ],
       "difficulty": "basis_mittel",
-      "structure_svg": "<svg viewBox='0 0 360 110' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='70' y1='60' x2='103' y2='60'/><line x1='155' y1='60' x2='190' y2='60'/><line x1='185' y1='54' x2='215' y2='22'/><line x1='191' y1='60' x2='221' y2='28'/><line x1='240' y1='60' x2='268' y2='60'/><line x1='304' y1='60' x2='330' y2='60'/></g><g fill='currentColor' font-family='system-ui' font-size='22' text-anchor='middle' dominant-baseline='middle'><text x='40' y='60'>CH₃</text><text x='130' y='60'>C</text><text x='224' y='20'>O</text><text x='215' y='60'>O</text><text x='286' y='60'>CH₂</text><text x='345' y='60'>CH₃</text></g></svg>",
+      "structure_svg": "<svg viewBox='0 0 360 110' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><line x1='70' y1='60' x2='103' y2='60'/><line x1='154' y1='60' x2='190' y2='60'/><line x1='144' y1='49' x2='173' y2='20'/><line x1='150' y1='55' x2='179' y2='26'/><line x1='240' y1='60' x2='268' y2='60'/><line x1='304' y1='60' x2='330' y2='60'/></g><g fill='currentColor' font-family='system-ui' font-size='22' text-anchor='middle' dominant-baseline='middle'><text x='40' y='60'>CH₃</text><text x='130' y='60'>C</text><text x='188' y='16'>O</text><text x='215' y='60'>O</text><text x='286' y='60'>CH₂</text><text x='345' y='60'>CH₃</text></g></svg>",
       "synonyms": [
         "Ethylacetat",
         "Ethansäureethylester",
@@ -326,7 +326,30 @@
             "intensity": 5
           }
         ],
-        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach NIST/SDBS-Referenzdaten"
+        "source_note": "didaktisch reduzierte EI-MS-Peakliste nach NIST-Referenzspektrum; Fragmenthilfe auf wenige robuste Lehrbeispiele (m/z 88, 43, 45) begrenzt",
+        "diagnostic_fragments": [
+          {
+            "mz": 88,
+            "label": "Molekülion",
+            "ion_formula": "C₄H₈O₂⁺·",
+            "pathway": "Elektronenstoß-Ionisation ohne anschließende Fragmentierung",
+            "note": "Der schwache Peak bei m/z 88 entspricht dem Molekülion und bestätigt die molare Masse von Ethylacetat."
+          },
+          {
+            "mz": 43,
+            "label": "Acylfragment",
+            "ion_formula": "CH₃CO⁺",
+            "pathway": "C–O-Spaltung am Ester unter Bildung eines resonanzstabilisierten Acylium-Ions",
+            "note": "m/z 43 ist bei Ethylacetat der besonders charakteristische starke Fragmentpeak. Das geladene Acylfragment ist resonanzstabilisiert."
+          },
+          {
+            "mz": 45,
+            "label": "Ethoxyfragment",
+            "ion_formula": "C₂H₅O⁺",
+            "pathway": "alternative C–O-Spaltung des Estergerüsts",
+            "note": "Die Spaltung auf der anderen Seite der Esterbindung kann ein sauerstoffhaltiges Ethoxy-Fragment bei m/z 45 liefern."
+          }
+        ]
       },
       "ir": {
         "bands": [
@@ -449,7 +472,7 @@
       "molar_mass": 58.08,
       "primary_class": "Keton",
       "difficulty": "basis",
-      "structure_svg": "<svg viewBox='0 0 280 110' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.2' fill='none' stroke-linecap='round'><line x1='68' y1='60' x2='100' y2='60'/><line x1='150' y1='60' x2='182' y2='60'/><line x1='144' y1='54' x2='174' y2='22'/><line x1='150' y1='60' x2='180' y2='28'/></g><g fill='currentColor' font-family='system-ui' font-size='24' text-anchor='middle' dominant-baseline='middle'><text x='40' y='60'>CH₃</text><text x='125' y='60'>C</text><text x='184' y='20'>O</text><text x='212' y='60'>CH₃</text></g></svg>",
+      "structure_svg": "<svg viewBox='0 0 280 110' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' stroke-width='3.0' fill='none' stroke-linecap='round'><line x1='68' y1='60' x2='100' y2='60'/><line x1='150' y1='60' x2='182' y2='60'/><line x1='139' y1='49' x2='168' y2='20'/><line x1='145' y1='55' x2='174' y2='26'/></g><g fill='currentColor' font-family='system-ui' font-size='24' text-anchor='middle' dominant-baseline='middle'><text x='40' y='60'>CH₃</text><text x='125' y='60'>C</text><text x='183' y='16'>O</text><text x='212' y='60'>CH₃</text></g></svg>",
       "synonyms": [
         "Aceton",
         "Propanon"

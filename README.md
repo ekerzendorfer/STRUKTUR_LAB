@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.2.0 – GC-Peak aus dem Analytik-Hub  
+**Version:** v0.2.1 – Ethylacetat-MS-Hilfe und Carbonyl-Feintuning  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -139,3 +139,11 @@ Im Hub-Modus:
 - wird `Hypothese an Hub übergeben` erst nach korrekter Struktur- und Namenszuordnung aktiv
 - das zurückgegebene RESULT erhält `identity_status: supported`, nicht `confirmed`
 - die endgültige Bestätigung ist ausdrücklich dem späteren gezielten GC-Referenzstandard vorbehalten
+
+
+## v0.2.1 – Feintuning
+
+- Ethylacetat erhält eine kuratierte MS-Fragment-Lernhilfe
+- diagnostische Lehrpeaks: Molekülion m/z 88, Acylfragment CH₃CO⁺ bei m/z 43, Ethoxyfragment C₂H₅O⁺ bei m/z 45
+- bewusst keine vollständige Zuordnung aller Nebenpeaks
+- Carbonyl-Doppelbindungen bei Ethylacetat und Aceton geometrisch überarbeitet: beide Linien beginnen optisch am Carbonyl-C und verschmelzen nicht mehr mit benachbarten Einfachbindungen

@@ -241,3 +241,8 @@ Rückgabe:
 - `source_result_id + peak_id` zur Rückverknüpfung
 
 `confirmed` wird bewusst nicht im STRUKTUR-LAB vergeben. Die endgültige Identitätsbestätigung erfolgt später über einen gezielten GC-Referenzstandard bzw. Aufstockung.
+
+
+### Nachtrag v0.2.1
+
+Die MS-Lernhilfe für Ethylacetat wird analog zu den Butanol-Fällen auf wenige diagnostische Fragmente begrenzt. Die Strukturkarten von Carbonylverbindungen verwenden eine geometrisch klarere C=O-Darstellung, bei der beide Doppelbindungslinien eindeutig vom Carbonyl-C ausgehen.
