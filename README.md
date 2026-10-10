@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.2.4 – Kandidatenvergleich mit ausblendbarem Originalspektrum  
+**Version:** v0.2.5 – Strukturkandidaten erst nach Stoffklassenentscheidung  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -178,3 +178,11 @@ Im Hub-Modus:
 - der gewählte Kandidat bleibt als gestricheltes Referenzspektrum sichtbar
 - Einstellung gilt für MS, IR und ¹H-NMR und wird im lokalen Zustand gespeichert
 - besonders bei dicht liegenden aromatischen ¹H-NMR-Signalen verbessert das die Lesbarkeit
+
+
+## v0.2.5 – Hypothesen-Gating
+
+- Strukturkandidaten werden erst sichtbar, wenn die korrekte Stoffklasse gewählt wurde.
+- Bei falscher bzw. nachträglich geänderter Stoffklasse werden eine bereits gewählte Struktur, Namensbestätigung und Spektrenwerkstatt-Freigabe zurückgesetzt.
+- Dadurch verraten insbesondere Fälle mit sehr ähnlichen Kandidaten (z. B. Hydroxybenzoesäure-Isomere) die Stoffklasse nicht mehr vorzeitig.
+- Das bisherige Einzelauswahlsystem für Stoffklassen bleibt bewusst unverändert; Mehrfachauswahl für multifunktionelle Stoffe ist als späterer Ausbau vorgesehen.
