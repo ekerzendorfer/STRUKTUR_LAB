@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.4";
+  const VERSION = "0.2.5";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const STAGE_TITLES = {
@@ -385,7 +385,29 @@
     if(selectedClass)showClassFeedback(selectedClass);
   }
 
-  function chooseClass(cls){selectedClass=cls;state.selectedClass=cls;save();renderClassGrid();showClassFeedback(cls);renderJournal();}
+  function chooseClass(cls){
+    const wasCorrect=selectedClass===target().primary_class;
+    selectedClass=cls;
+    state.selectedClass=cls;
+    const isCorrect=cls===target().primary_class;
+    if(!isCorrect){
+      selectedStructure=null;
+      state.selectedStructure=null;
+      state.nameVerified=false;
+      referenceUnlocked=false;
+      state.referenceUnlocked=false;
+    }
+    save();
+    renderClassGrid();
+    showClassFeedback(cls);
+    renderStructures();
+    renderHypothesisState();
+    renderJournal();
+    if(!wasCorrect&&isCorrect){
+      el.structureFeedback.className="feedback";
+      el.structureFeedback.textContent="";
+    }
+  }
   function showClassFeedback(cls){
     const t=target(),correct=cls===t.primary_class;el.classFeedback.className=`feedback ${correct?"good":"warn"}`;
     el.classFeedback.textContent=(t.class_feedback&&t.class_feedback[cls])|| (correct?"Diese Stoffklasse ist mit den Daten vereinbar.":"Diese Wahl erklärt die bisherigen Befunde nicht vollständig.");
@@ -393,6 +415,11 @@
   }
 
   function renderStructures(){
+    const classOk=selectedClass===target().primary_class;
+    if(!classOk){
+      el.structureGrid.innerHTML='<div class="structure-gate-note"><strong>Strukturkandidaten noch gesperrt</strong><span>Wähle zuerst eine Stoffklasse, die mit deinen bisherigen Befunden vereinbar ist.</span></div>';
+      return;
+    }
     if(!Array.isArray(state.candidateOrder) || !state.candidateOrder.length){
       state.candidateOrder=shuffledCandidateIds(state.caseId);
       save();
