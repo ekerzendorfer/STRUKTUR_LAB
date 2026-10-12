@@ -1,9 +1,10 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.5";
+  const VERSION = "0.2.6";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
+  const ATOMIC_MASS = {C:12.011,H:1.008,N:14.007,O:15.999,S:32.06,F:18.998,Cl:35.45,Br:79.904,I:126.904};
   const STAGE_TITLES = {
     mass:["Phase 1","Molare Masse"], ms:["Phase 2","Massenspektrometrie"], ir:["Phase 3","IR-Spektroskopie"],
     nmr:["Phase 4","¹H-NMR-Spektroskopie"], hypothesis:["Phase 5","Stoffklasse & Strukturhypothese"]
@@ -70,7 +71,10 @@
 
   function bindEls(){
     ["modeSelect","caseSelect","caseLabel","caseIntro","toolboxBtn","toolboxOverlay","toolboxCloseBtn","toolboxContent",
-      "stageKicker","stageTitle","stageHelpBtn","massValue","formulaBox","massNote","msCanvas","msReadout","msNote",
+      "stageKicker","stageTitle","stageHelpBtn","massValue","formulaBox","massNote",
+      "elementalPanel","elementalRunBtn","elementalResults","elementalValues","empiricalFormulaInput","checkEmpiricalBtn",
+      "empiricalFeedback","molecularFormulaStep","empiricalMassInfo","formulaFactorInput","checkFormulaFactorBtn","formulaFactorFeedback",
+      "msCanvas","msReadout","msNote",
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
       "nmrRegionsToggle","nmrNote","classGrid","classFeedback","structureStage","structureGrid","hypothesisNote",
       "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","spectraWorkbenchStage",
@@ -97,6 +101,9 @@
     document.querySelectorAll(".toolbox-tabs button").forEach(b=>b.addEventListener("click",()=>showToolboxTopic(b.dataset.topic)));
     document.querySelectorAll(".contextual-help").forEach(b=>b.addEventListener("click",()=>openToolbox(b.dataset.topic)));
     el.stageHelpBtn.addEventListener("click",()=>openToolbox(currentStage==="mass"?"elemental":currentStage==="hypothesis"?"nmr":currentStage));
+    el.elementalRunBtn.addEventListener("click",runElementalAnalysis);
+    el.checkEmpiricalBtn.addEventListener("click",checkEmpiricalFormula);
+    el.checkFormulaFactorBtn.addEventListener("click",checkFormulaFactor);
     ["massNote","msNote","irNote","nmrNote","hypothesisNote"].forEach(k=>el[k].addEventListener("input",()=>{state.notes[k]=el[k].value;save();renderJournal();}));
     el.irGroupsToggle.addEventListener("change",drawIr);
     el.irFingerprintToggle.addEventListener("change",drawIr);
@@ -169,6 +176,9 @@
         }
         currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;workbenchMethod=old.workbenchMethod||"ms";workbenchMode=old.workbenchMode||"learn";
         if(typeof state.compareShowOriginal!=="boolean") state.compareShowOriginal=true;
+        if(!state.elemental || typeof state.elemental!=="object"){
+          state.elemental={run:false,empiricalVerified:false,factorVerified:false};
+        }
         localStorage.setItem(storageKey(),JSON.stringify(state));
         return;
       }
@@ -311,7 +321,7 @@
     return ids;
   }
 
-  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn",compareShowOriginal:true};}
+  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn",compareShowOriginal:true,elemental:{run:false,empiricalVerified:false,factorVerified:false}};}
   function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;state.workbenchMethod=workbenchMethod;state.workbenchMode=workbenchMode;localStorage.setItem(storageKey(),JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
@@ -332,8 +342,7 @@
       ? (bridgeInput.assignment_text||"Struktur eines unbekannten GC-Peaks aus spektroskopischen Daten erschließen.")
       : c.intro_de;
     el.massValue.textContent=`${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty}`;
-    el.formulaBox.textContent=state.mode==="basic"?`Summenformel: ${t.formula}`:"Summenformel im Expertenmodus nicht vorgegeben";
-    el.formulaBox.classList.toggle("muted",state.mode!=="basic");
+    renderElementalAnalysis();
     Object.keys(state.notes).forEach(k=>{if(el[k])el[k].value=state.notes[k]||"";});
     renderStepper();openStage(currentStage,true);renderClassGrid();renderStructures();renderHypothesisState();renderJournal();
     updateBridgeControls();
@@ -352,15 +361,206 @@
     currentStage=stage;save();
     document.querySelectorAll(".stage").forEach(s=>s.classList.remove("active"));
     document.getElementById("stage"+stage[0].toUpperCase()+stage.slice(1)).classList.add("active");
-    const [k,t]=STAGE_TITLES[stage];el.stageKicker.textContent=k;el.stageTitle.textContent=t;renderStepper();
+    const [k,t]=STAGE_TITLES[stage];el.stageKicker.textContent=k;el.stageTitle.textContent=(stage==="mass"&&state.mode==="expert")?"Molare Masse & Elementaranalyse":t;renderStepper();
     if(stage==="ms")drawMs();if(stage==="ir")drawIr();if(stage==="nmr")drawNmr();
   }
 
   function advance(next){
+    if(currentStage==="mass" && state.mode==="expert" && !(state.elemental&&state.elemental.factorVerified)){
+      el.formulaBox.textContent="Summenformel noch offen · Elementaranalyse vollständig auswerten.";
+      el.formulaBox.classList.add("muted");
+      return;
+    }
     const key=currentStage+"Note";
     if(el[key]&&el[key].value.trim().length<3){setTemporaryReadout(currentStage,"Notiere zumindest einen kurzen Befund, bevor du weitergehst.");return;}
     if(!state.unlocked.includes(next))state.unlocked.push(next);save();openStage(next);renderJournal();
   }
+
+  function gcd(a,b){
+    a=Math.abs(Math.round(a));b=Math.abs(Math.round(b));
+    while(b){const r=a%b;a=b;b=r;}
+    return a||1;
+  }
+
+  function parseFormula(formula){
+    const text=String(formula||"").replace(/\s+/g,"");
+    const counts={};
+    const order=[];
+    let matched="";
+    const re=/([A-Z][a-z]?)(\d*)/g;
+    let m;
+    while((m=re.exec(text))){
+      matched+=m[0];
+      const elName=m[1];
+      const count=m[2]?Number(m[2]):1;
+      if(!Number.isInteger(count)||count<1) return null;
+      counts[elName]=(counts[elName]||0)+count;
+      if(!order.includes(elName)) order.push(elName);
+    }
+    if(!matched || matched!==text) return null;
+    return {counts,order};
+  }
+
+  function canonicalFormula(counts){
+    const keys=Object.keys(counts).filter(k=>counts[k]>0);
+    const ordered=keys.includes("C")
+      ? ["C",...(keys.includes("H")?["H"]:[]),...keys.filter(k=>k!=="C"&&k!=="H").sort()]
+      : keys.sort();
+    return ordered.map(k=>k+(counts[k]===1?"":String(counts[k]))).join("");
+  }
+
+  function normalizeFormulaInput(value){
+    const subs={"₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9"};
+    const plain=String(value||"").replace(/[₀-₉]/g,ch=>subs[ch]).replace(/\s+/g,"");
+    const parsed=parseFormula(plain);
+    return parsed?canonicalFormula(parsed.counts):"";
+  }
+
+  function empiricalInfo(formula){
+    const parsed=parseFormula(formula);
+    if(!parsed) return null;
+    const values=Object.values(parsed.counts);
+    const divisor=values.reduce((a,b)=>gcd(a,b),values[0]||1);
+    const empiricalCounts={};
+    Object.entries(parsed.counts).forEach(([k,v])=>{empiricalCounts[k]=v/divisor;});
+    return {
+      molecular:canonicalFormula(parsed.counts),
+      empirical:canonicalFormula(empiricalCounts),
+      factor:divisor,
+      empiricalCounts
+    };
+  }
+
+  function formulaMass(counts){
+    return Object.entries(counts).reduce((sum,[element,count])=>{
+      const mass=ATOMIC_MASS[element];
+      return sum+(Number.isFinite(mass)?mass*count:0);
+    },0);
+  }
+
+  function elementalComposition(formula){
+    const parsed=parseFormula(formula);
+    if(!parsed) return null;
+    const total=formulaMass(parsed.counts);
+    if(!total) return null;
+    const percentages={};
+    Object.entries(parsed.counts).forEach(([element,count])=>{
+      if(ATOMIC_MASS[element]) percentages[element]=100*ATOMIC_MASS[element]*count/total;
+    });
+    return {counts:parsed.counts,total,percentages};
+  }
+
+  function runElementalAnalysis(){
+    if(state.mode!=="expert") return;
+    state.elemental.run=true;
+    save();
+    renderElementalAnalysis();
+  }
+
+  function checkEmpiricalFormula(){
+    if(state.mode!=="expert" || !state.elemental.run) return;
+    const info=empiricalInfo(target().formula);
+    const entered=normalizeFormulaInput(el.empiricalFormulaInput.value);
+    if(entered===info.empirical){
+      state.elemental.empiricalVerified=true;
+      state.elemental.factorVerified=false;
+      el.empiricalFeedback.className="feedback good";
+      el.empiricalFeedback.textContent="Verhältnisformel korrekt.";
+      save();
+      renderElementalAnalysis();
+    }else{
+      state.elemental.empiricalVerified=false;
+      state.elemental.factorVerified=false;
+      el.empiricalFeedback.className="feedback warn";
+      el.empiricalFeedback.textContent="Noch nicht passend. Prüfe Stoffmengenverhältnis und kleinste ganzzahlige Indizes.";
+      save();
+      renderElementalAnalysis();
+    }
+  }
+
+  function checkFormulaFactor(){
+    if(state.mode!=="expert" || !state.elemental.empiricalVerified) return;
+    const info=empiricalInfo(target().formula);
+    const entered=Number(el.formulaFactorInput.value);
+    if(Number.isInteger(entered) && entered===info.factor){
+      state.elemental.factorVerified=true;
+      el.formulaFactorFeedback.className="feedback good";
+      el.formulaFactorFeedback.textContent="Faktor korrekt. Die Summenformel ist jetzt erschlossen.";
+      save();
+      renderElementalAnalysis();
+      renderJournal();
+    }else{
+      state.elemental.factorVerified=false;
+      el.formulaFactorFeedback.className="feedback warn";
+      el.formulaFactorFeedback.textContent="Faktor noch nicht passend. Vergleiche experimentelle Molmasse mit M(Verhältnisformel).";
+      save();
+      renderElementalAnalysis();
+    }
+  }
+
+  function renderElementalAnalysis(){
+    const t=target();
+    const expert=state.mode==="expert";
+    if(!state.elemental || typeof state.elemental!=="object"){
+      state.elemental={run:false,empiricalVerified:false,factorVerified:false};
+    }
+
+    el.elementalPanel.hidden=!expert;
+    if(!expert){
+      el.formulaBox.textContent="Summenformel: "+t.formula;
+      el.formulaBox.classList.remove("muted");
+      return;
+    }
+
+    const complete=!!state.elemental.factorVerified;
+    el.formulaBox.textContent=complete
+      ? "Summenformel erschlossen: "+t.formula
+      : "Summenformel im Expertenmodus noch nicht verfügbar";
+    el.formulaBox.classList.toggle("muted",!complete);
+    el.elementalPanel.classList.toggle("elemental-complete",complete);
+
+    el.elementalRunBtn.disabled=!!state.elemental.run;
+    el.elementalRunBtn.textContent=state.elemental.run?"Messwerte liegen vor":"Elementaranalyse durchführen";
+    el.elementalResults.hidden=!state.elemental.run;
+    if(!state.elemental.run) return;
+
+    const comp=elementalComposition(t.formula);
+    const info=empiricalInfo(t.formula);
+    const cPct=comp&&comp.percentages.C||0;
+    const hPct=comp&&comp.percentages.H||0;
+    const otherMeasured=Object.entries(comp?.percentages||{})
+      .filter(([k])=>!["C","H","O"].includes(k))
+      .reduce((s,[,v])=>s+v,0);
+    const oPct=Math.max(0,100-cPct-hPct-otherMeasured);
+
+    const values=[
+      ["C",cPct.toFixed(1).replace(".",",")+" %","gemessen"],
+      ["H",hPct.toFixed(1).replace(".",",")+" %","gemessen"]
+    ];
+    if((comp?.counts.O||0)>0) values.push(["O",oPct.toFixed(1).replace(".",",")+" %","aus Differenz"]);
+    Object.keys(comp?.percentages||{}).filter(k=>!["C","H","O"].includes(k)).sort().forEach(k=>{
+      values.push([k,comp.percentages[k].toFixed(1).replace(".",",")+" %","gemessen"]);
+    });
+    el.elementalValues.innerHTML=values.map(v=>'<div class="elemental-value"><span>'+escapeHtml(v[0])+' · '+escapeHtml(v[2])+'</span><strong>'+escapeHtml(v[1])+'</strong></div>').join("");
+
+    if(state.elemental.empiricalVerified){
+      el.empiricalFormulaInput.value=info.empirical;
+      el.empiricalFeedback.className="feedback good";
+      el.empiricalFeedback.textContent="Verhältnisformel korrekt: "+info.empirical;
+      el.molecularFormulaStep.classList.add("unlocked");
+      el.empiricalMassInfo.textContent="M("+info.empirical+") ≈ "+formulaMass(info.empiricalCounts).toFixed(2).replace(".",",")+" g·mol⁻¹ · experimentell: "+t.mass_measurement.value+" ± "+t.mass_measurement.uncertainty+" g·mol⁻¹";
+    }else{
+      el.molecularFormulaStep.classList.remove("unlocked");
+      el.empiricalMassInfo.textContent="";
+    }
+
+    if(state.elemental.factorVerified){
+      el.formulaFactorInput.value=String(info.factor);
+      el.formulaFactorFeedback.className="feedback good";
+      el.formulaFactorFeedback.textContent="n = "+info.factor+" · Summenformel: "+t.formula;
+    }
+  }
+
 
   function setTemporaryReadout(stage,text){
     const map={ms:el.msReadout,ir:el.irReadout,nmr:el.nmrReadout};
@@ -372,8 +572,11 @@
   function showToolboxTopic(topic){document.querySelectorAll(".toolbox-tabs button").forEach(b=>b.classList.toggle("active",b.dataset.topic===topic));el.toolboxContent.innerHTML=TOOLBOX[topic]||TOOLBOX.ms;}
 
   function renderJournal(){
+    const formulaJournal=state.mode==="basic"
+      ? target().formula
+      : (state.elemental&&state.elemental.factorVerified ? target().formula : "");
     const items=[
-      ["M",state.notes.massNote],["MS",state.notes.msNote],["IR",state.notes.irNote],["¹H-NMR",state.notes.nmrNote],
+      ["M",state.notes.massNote],["Summenformel",formulaJournal],["MS",state.notes.msNote],["IR",state.notes.irNote],["¹H-NMR",state.notes.nmrNote],
       ["Stoffklasse",selectedClass||""],["Struktur",selectedStructure?"Strukturhypothese festgelegt":""],["Begründung",state.notes.hypothesisNote]
     ];
     el.journalView.innerHTML=items.map(([k,v])=>`<div class="journal-item ${v?"":"empty"}"><strong>${k}</strong><span>${escapeHtml(v||"noch offen")}</span></div>`).join("");
@@ -965,7 +1168,7 @@
   }
 
   async function copyJournal(){const text=journalText();try{await navigator.clipboard.writeText(text);el.copyJournalBtn.textContent="Kopiert ✓";setTimeout(()=>el.copyJournalBtn.textContent="Protokoll kopieren",1200);}catch(_){alert(text);}}
-  function journalText(){const c=currentCase(),t=target();return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,state.mode==="basic"?`Summenformel: ${t.formula}`:"Summenformel: nicht vorgegeben","",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
+  function journalText(){const c=currentCase(),t=target();const formulaLine=state.mode==="basic"||state.elemental?.factorVerified?`Summenformel: ${t.formula}`:"Summenformel: noch nicht aus Elementaranalyse erschlossen";return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,formulaLine,"",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
   function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 
   window.StructurLab={version:VERSION,getState:()=>structuredClone(state)};
