@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.7";
+  const VERSION = "0.2.8";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const ATOMIC_MASS = {C:12.011,H:1.008,N:14.007,O:15.999,S:32.06,F:18.998,Cl:35.45,Br:79.904,I:126.904};
@@ -56,6 +56,7 @@
   }
 
   async function init(){
+    ensureElementalPanelMarkup();
     bindEls();
     const [s,c]=await Promise.all([
       fetch("data/structure-substances.json",{cache:"no-store"}).then(r=>r.json()),
@@ -67,6 +68,55 @@
     if(bridgeMode) await initAnalytikBridge();
     else loadOrReset();
     renderAll();
+  }
+
+  function ensureElementalPanelMarkup(){
+    if(document.getElementById("elementalPanel")) return;
+    const formulaBox=document.getElementById("formulaBox");
+    const massPanel=formulaBox&&formulaBox.closest(".mass-panel");
+    if(!massPanel) return;
+
+    const wrapper=document.createElement("div");
+    wrapper.innerHTML=`
+      <div id="elementalPanel" class="elemental-panel" hidden>
+        <div class="elemental-head">
+          <div>
+            <span class="small-label">Expertenmodus · Summenformel erarbeiten</span>
+            <h3>Elementaranalyse</h3>
+          </div>
+          <button id="elementalRunBtn" class="secondary compact" type="button">Elementaranalyse durchführen</button>
+        </div>
+        <div id="elementalResults" class="elemental-results" hidden>
+          <p class="hint">Verbrennungsanalyse: C und H werden als Massenanteile bestimmt; O wird in diesem didaktischen Modell aus der Differenz zu 100&nbsp;% berechnet.</p>
+          <div id="elementalValues" class="elemental-values"></div>
+          <div class="elemental-step">
+            <strong>1 · Verhältnisformel</strong>
+            <p class="hint">Denke mit 100 g Probe: Massenanteil → Stoffmenge → durch den kleinsten Wert teilen → ganzzahliges Verhältnis.</p>
+            <div class="elemental-entry">
+              <label>Verhältnisformel
+                <input id="empiricalFormulaInput" type="text" autocomplete="off" placeholder="z. B. C2H4O">
+              </label>
+              <button id="checkEmpiricalBtn" class="secondary compact" type="button">Prüfen</button>
+            </div>
+            <div id="empiricalFeedback" class="feedback neutral">Noch keine Verhältnisformel geprüft.</div>
+          </div>
+          <div id="molecularFormulaStep" class="elemental-step locked-panel">
+            <strong>2 · Von der Verhältnisformel zur Summenformel</strong>
+            <div id="empiricalMassInfo" class="hint"></div>
+            <div class="elemental-entry">
+              <label>Faktor n
+                <input id="formulaFactorInput" type="number" min="1" max="12" step="1" inputmode="numeric" placeholder="n">
+              </label>
+              <button id="checkFormulaFactorBtn" class="secondary compact" type="button">Faktor prüfen</button>
+            </div>
+            <div id="formulaFactorFeedback" class="feedback neutral">Bestimme n aus M / M(Verhältnisformel).</div>
+          </div>
+        </div>
+      </div>`;
+    const panel=wrapper.firstElementChild;
+    const explain=massPanel.querySelector(".explain");
+    if(explain && explain.nextSibling) massPanel.insertBefore(panel,explain.nextSibling);
+    else massPanel.appendChild(panel);
   }
 
   function bindEls(){
