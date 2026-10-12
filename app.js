@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.6";
+  const VERSION = "0.2.7";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const ATOMIC_MASS = {C:12.011,H:1.008,N:14.007,O:15.999,S:32.06,F:18.998,Cl:35.45,Br:79.904,I:126.904};
@@ -219,14 +219,18 @@
       el.bridgeSampleLabel.textContent=bridgeInput.display_label||(bridgeInput.mode==="solid_screening"?"Unbekannter Feststoff":"GC-Peak");
       if(bridgeInput.mode==="solid_screening"){
         el.bridgePeakLabel.textContent="Vorwissen aus klassischer Feststoffanalyse";
-        el.bridgeMessage.textContent="Die Voranalyse grenzt funktionelle Gruppen ein, verrät aber keinen Stoffnamen. Nutze diese Befunde zusammen mit M, MS, IR und besonders ¹H-NMR.";
+        el.bridgeMessage.textContent=mode==="expert"
+          ? "Expertenmodus: Nutze die Vorbefunde, erschließe aus Molmasse und Elementaranalyse die Summenformel und arbeite anschließend mit MS, IR und ¹H-NMR weiter."
+          : "Die Voranalyse grenzt funktionelle Gruppen ein, verrät aber keinen Stoffnamen. Nutze diese Befunde zusammen mit M, MS, IR und besonders ¹H-NMR.";
         renderPriorFindings();
       }else{
         const peak=bridgeInput.source_peak||{};
         const rt=Number.isFinite(Number(peak.retention_time_min)) ? Number(peak.retention_time_min).toFixed(2).replace(".",",")+" min" : "–";
         const area=Number.isFinite(Number(peak.area_percent)) ? Number(peak.area_percent).toFixed(1).replace(".",",")+" %" : "–";
         el.bridgePeakLabel.textContent=`${run.peak_id||"Peak"} · tR ${rt} · Fläche ${area}`;
-        el.bridgeMessage.textContent="Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
+        el.bridgeMessage.textContent=mode==="expert"
+          ? "Expertenmodus: Erschließe zuerst aus Molmasse und Elementaranalyse die Summenformel; danach folgen MS, IR und ¹H-NMR. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen."
+          : "Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
       }
       updateBridgeControls();
     }catch(err){
