@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.2.5 – Strukturkandidaten erst nach Stoffklassenentscheidung  
+**Version:** v0.2.6 – Strukturkandidaten erst nach Stoffklassenentscheidung  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -186,3 +186,28 @@ Im Hub-Modus:
 - Bei falscher bzw. nachträglich geänderter Stoffklasse werden eine bereits gewählte Struktur, Namensbestätigung und Spektrenwerkstatt-Freigabe zurückgesetzt.
 - Dadurch verraten insbesondere Fälle mit sehr ähnlichen Kandidaten (z. B. Hydroxybenzoesäure-Isomere) die Stoffklasse nicht mehr vorzeitig.
 - Das bisherige Einzelauswahlsystem für Stoffklassen bleibt bewusst unverändert; Mehrfachauswahl für multifunktionelle Stoffe ist als späterer Ausbau vorgesehen.
+
+
+## v0.2.6 – Elementaranalyse im Expertenmodus
+
+Im Expertenmodus wird die Summenformel nicht mehr nur ausgeblendet, sondern muss in Phase 1 aus einer kleinen Elementaranalyse erschlossen werden.
+
+Ablauf:
+- experimentell bestimmte molare Masse liegt vor,
+- Elementaranalyse liefert C- und H-Massenanteile; O wird im didaktischen Modell aus der Differenz bestimmt,
+- Lernende ermitteln aus 100 g Probe die Verhältnisformel,
+- nach korrekter Verhältnisformel wird deren molare Masse angezeigt,
+- anschließend wird der ganzzahlige Faktor `n = M / M(Verhältnisformel)` bestimmt,
+- erst danach wird die Summenformel freigeschaltet,
+- MS wird im Expertenmodus erst nach diesem Schritt zugänglich.
+
+Im Basismodus bleibt die Summenformel wie bisher von Beginn an sichtbar.
+
+Beispiel Ethylacetat:
+- Elementaranalyse führt zu `C2H4O`,
+- `M(C2H4O) ≈ 44,05 g·mol⁻¹`,
+- experimentell `M ≈ 88 g·mol⁻¹`,
+- daraus `n = 2`,
+- Summenformel `C4H8O2`.
+
+Bei Hub-Aufrufen wird die Elementaranalyse im Expertenmodus als eigene Methode `ELEMENTAL_ANALYSIS` im RESULT dokumentiert. Die Summenformel erhält die Herkunft `elemental_analysis_plus_molar_mass`.
