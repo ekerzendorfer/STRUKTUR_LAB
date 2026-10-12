@@ -284,8 +284,29 @@
       source_result_id:bridgeRun.source_result_id||null,
       peak_id:bridgeRun.peak_id||null,
       measurement:{
-        methods:["M","EI_MS","IR","H1_NMR"],
-        molar_mass_g_mol:t.mass_measurement?.value??null
+        methods:state.mode==="expert"
+          ? ["M","ELEMENTAL_ANALYSIS","EI_MS","IR","H1_NMR"]
+          : ["M","EI_MS","IR","H1_NMR"],
+        molar_mass_g_mol:t.mass_measurement?.value??null,
+        formula_source:state.mode==="expert" ? "elemental_analysis_plus_molar_mass" : "provided",
+        elemental_analysis:state.mode==="expert" ? (()=>{
+          const comp=elementalComposition(t.formula);
+          const info=empiricalInfo(t.formula);
+          const cPct=comp?.percentages?.C||0;
+          const hPct=comp?.percentages?.H||0;
+          const other=Object.entries(comp?.percentages||{})
+            .filter(([k])=>!["C","H","O"].includes(k))
+            .reduce((s,[,v])=>s+v,0);
+          return {
+            carbon_mass_percent:Number(cPct.toFixed(1)),
+            hydrogen_mass_percent:Number(hPct.toFixed(1)),
+            oxygen_mass_percent_by_difference:(comp?.counts?.O||0)>0 ? Number(Math.max(0,100-cPct-hPct-other).toFixed(1)) : 0,
+            empirical_formula:info?.empirical||null,
+            molecular_formula:t.formula,
+            factor:info?.factor||null,
+            student_verified:!!state.elemental?.factorVerified
+          };
+        })() : null
       },
       evaluation:{
         identity_status:"supported",
@@ -326,6 +347,10 @@
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
     state=freshState(caseId,mode);currentStage="mass";selectedClass=null;selectedStructure=null;referenceUnlocked=false;referenceCandidateId=null;activeSignalId=null;activeMsFragmentMz=null;workbenchMethod="ms";workbenchMode="learn";
+    if(el.empiricalFormulaInput) el.empiricalFormulaInput.value="";
+    if(el.formulaFactorInput) el.formulaFactorInput.value="";
+    if(el.empiricalFeedback){el.empiricalFeedback.className="feedback neutral";el.empiricalFeedback.textContent="Noch keine Verhältnisformel geprüft.";}
+    if(el.formulaFactorFeedback){el.formulaFactorFeedback.className="feedback neutral";el.formulaFactorFeedback.textContent="Bestimme n aus M / M(Verhältnisformel).";}
     save();renderAll(); if(!changed) window.scrollTo({top:0,behavior:"smooth"});
   }
 
