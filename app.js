@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.8";
+  const VERSION = "0.2.9";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const ATOMIC_MASS = {C:12.011,H:1.008,N:14.007,O:15.999,S:32.06,F:18.998,Cl:35.45,Br:79.904,I:126.904};
