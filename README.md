@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.2.6 – Strukturkandidaten erst nach Stoffklassenentscheidung  
+**Version:** v0.3.0 – optionale Expertenpfade ohne Voranalyse bzw. Elementaranalyse  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -211,3 +211,26 @@ Beispiel Ethylacetat:
 - Summenformel `C4H8O2`.
 
 Bei Hub-Aufrufen wird die Elementaranalyse im Expertenmodus als eigene Methode `ELEMENTAL_ANALYSIS` im RESULT dokumentiert. Die Summenformel erhält die Herkunft `elemental_analysis_plus_molar_mass`.
+
+
+## v0.3.0 – Spektrenauswertung ohne vorab bekannte Summenformel
+
+Im Expertenmodus ist die Elementaranalyse jetzt optional.
+
+Nach der experimentell bestimmten molaren Masse können Lernende zwischen zwei Wegen entscheiden:
+- **Elementaranalyse durchführen** → Verhältnisformel und Faktor n bestimmen → Summenformel erschließen
+- **Ohne Elementaranalyse weiter** → MS wird direkt freigegeben, die Summenformel bleibt während der Spektrenauswertung unbekannt
+
+Für den Skip-Pfad gilt:
+- vor der Freigabe von MS muss ein kurzer Befund zur molaren Masse dokumentiert werden
+- die Summenformel wird nicht intern als Hilfsinformation eingeblendet
+- MS, IR und ¹H-NMR werden ohne vorgegebene Summenformel interpretiert
+- nach korrekt gelöster Struktur darf die Summenformel selbstverständlich aus der bestätigten Strukturhypothese abgeleitet werden
+- das Analysenjournal dokumentiert den bewussten Verzicht
+
+RESULT-Provenienz:
+- mit vollständiger Elementaranalyse: `formula_source: "elemental_analysis_plus_molar_mass"`
+- ohne Elementaranalyse: `formula_source: "structure_hypothesis_without_prior_formula"`
+- `elemental_analysis_skipped: true` wird zusätzlich in der studentischen Interpretation dokumentiert
+
+Bei Hub-Aufträgen kann außerdem `screening_skipped: true` übergeben werden. In diesem Fall werden keine Vorbefunde aus der klassischen organischen Feststoffanalyse angezeigt.
