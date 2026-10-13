@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.3",
+  "schema_version": "0.3.1",
   "note_de": "Kuratierte Unterrichtsdaten. Kein universeller Spektrensimulator.",
   "substances": [
     {
@@ -163,6 +163,16 @@
         "Amid": "spricht dagegen: die für Amide erwartete Carbonylbande fehlt.",
         "Alken": "spricht dagegen: typische C=C-/vinylische Signale fehlen.",
         "Aromat": "spricht dagegen: es fehlen aromatische IR-/NMR-Merkmale."
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=1300"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C64175&Units=SI"
+        }
       }
     },
     {
@@ -276,6 +286,16 @@
         "Amid": "spricht dagegen: die Amid-Carbonylbande fehlt.",
         "Alken": "spricht dagegen: typische C=C-/vinylische Signale fehlen.",
         "Aromat": "spricht dagegen: keine aromatischen Protonen oder Ringbanden."
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=9556"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C115106&Units=SI"
+        }
       }
     },
     {
@@ -462,6 +482,16 @@
         "Amid": "spricht dagegen: N–H-Merkmale fehlen; die Carbonylposition/C–O-Signatur passt besser zum Ester.",
         "Alken": "spricht dagegen: die dominante Carbonyl-/C–O-Signatur wird dadurch nicht erklärt.",
         "Aromat": "spricht dagegen: aromatische Protonensignale fehlen."
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=889"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C141786&Units=SI"
+        }
       }
     },
     {
@@ -702,6 +732,16 @@
         "Amid": "spricht dagegen: eine Amid-Carbonylbande fehlt.",
         "Alken": "spricht dagegen: typische C=C-/vinylische Merkmale fehlen.",
         "Aromat": "spricht dagegen: aromatische Protonensignale und Ringmerkmale fehlen."
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=1374"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C71363&Units=SI"
+        }
       }
     },
     {
@@ -928,6 +968,16 @@
         "Amid": "spricht dagegen: eine Amid-Carbonylbande fehlt.",
         "Alken": "spricht dagegen: typische C=C-/vinylische Merkmale fehlen.",
         "Aromat": "spricht dagegen: aromatische Protonensignale und Ringmerkmale fehlen."
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=507"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C78922&Units=SI"
+        }
       }
     },
     {
@@ -1203,6 +1253,16 @@
         "Amin": "N-bezogene Merkmale fehlen.",
         "Amid": "N–H-/Amidmerkmale fehlen; die Säurebefunde passen besser zu einer Carbonsäure.",
         "Alken": "ein isoliertes Alken erklärt die aromatischen und sauren Befunde nicht."
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=1149"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C69727&Units=SI"
+        }
       }
     },
     {
@@ -1348,6 +1408,16 @@
           }
         ],
         "source_note": "¹H-NMR nach publizierter 400-MHz-DMSO-d6-Charakterisierung: 6.95, 7.24, 7.29, 7.33, 9.75 und 12.74 ppm"
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=1390"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C99069&Units=SI"
+        }
       }
     },
     {
@@ -1478,6 +1548,16 @@
           }
         ],
         "source_note": "experimentelle DMSO-d6-Daten zeigen die para-Symmetrie besonders deutlich: zwei aromatische 2H-Signalgruppen um 6.8 und 7.8 ppm"
+      },
+      "external_spectra": {
+        "sdbs": {
+          "label": "AIST SDBS · reale MS/IR/NMR-Spektren",
+          "url": "https://sdbs.db.aist.go.jp/CompoundLanding.aspx?sdbsno=1376"
+        },
+        "nist": {
+          "label": "NIST Chemistry WebBook · reale MS/IR-Daten",
+          "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C99967&Units=SI"
+        }
       }
     }
   ]
