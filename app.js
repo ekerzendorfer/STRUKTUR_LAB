@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.3.0";
+  const VERSION = "0.3.1";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const ATOMIC_MASS = {C:12.011,H:1.008,N:14.007,O:15.999,S:32.06,F:18.998,Cl:35.45,Br:79.904,I:126.904};
@@ -159,7 +159,8 @@
       "msCanvas","msReadout","msNote",
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
       "nmrRegionsToggle","nmrNote","classGrid","classFeedback","structureStage","structureGrid","hypothesisNote",
-      "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback","spectraWorkbenchStage",
+      "submitHypothesisBtn","structureFeedback","nameStage","nameInput","checkNameBtn","nameFeedback",
+      "realSpectraStage","realSpectraIntro","realSpectraLinks","spectraWorkbenchStage",
       "workbenchCandidateWrap","workbenchCandidateSelect","workbenchShowOriginalWrap","workbenchShowOriginalToggle","workbenchCanvas","workbenchLegend","workbenchLearnPanel",
       "workbenchMsPanel","workbenchMsPeakList","workbenchMsDetail","workbenchIrPanel","workbenchIrGroupsToggle","workbenchIrFingerprintToggle",
       "workbenchNmrPanel","workbenchNmrSignalList","workbenchNmrStructure","workbenchNmrFeedback","workbenchCompareHint",
@@ -834,13 +835,33 @@
       ensureReferenceCandidate();
       save();
       el.nameFeedback.className="feedback good";
-      el.nameFeedback.textContent=`Namenszuordnung passt: ${target().name_de}. Die Spektrenwerkstatt ist jetzt freigeschaltet.`;
+      el.nameFeedback.textContent=`Namenszuordnung passt: ${target().name_de}. Reale Referenzspektren und die Spektrenwerkstatt sind jetzt freigeschaltet.`;
       renderHypothesisState();
       updateBridgeControls();
     }else{
       el.nameFeedback.className="feedback warn";
       el.nameFeedback.textContent="Der Name passt noch nicht zur ausgewählten Struktur. Prüfe Stoffklasse und systematische bzw. gebräuchliche Benennung.";
     }
+  }
+
+  function renderRealSpectraLinks(){
+    if(!el.realSpectraStage || !el.realSpectraLinks) return;
+    if(!state.nameVerified){
+      el.realSpectraLinks.innerHTML="";
+      return;
+    }
+    const refs=target().external_spectra||{};
+    const links=[];
+    if(refs.sdbs&&refs.sdbs.url){
+      links.push('<a class="external-spectrum-link" href="'+escapeHtml(refs.sdbs.url)+'" target="_blank" rel="noopener noreferrer"><strong>AIST SDBS</strong><span>reale EI-MS-, FT-IR- und NMR-Spektren</span></a>');
+    }
+    if(refs.nist&&refs.nist.url){
+      links.push('<a class="external-spectrum-link" href="'+escapeHtml(refs.nist.url)+'" target="_blank" rel="noopener noreferrer"><strong>NIST Chemistry WebBook</strong><span>reale Referenzdaten, insbesondere MS und IR</span></a>');
+    }
+    el.realSpectraIntro.textContent='Vergleiche jetzt deine didaktisch kuratierten Spektren mit realen Referenzdaten zu '+target().name_de+'. Unterschiede in Peakform, Lösungsmittel, Aggregatzustand und Messbedingungen sind ausdrücklich Teil des Vergleichs.';
+    el.realSpectraLinks.innerHTML=links.length
+      ? links.join("")
+      : '<div class="feedback neutral">Für diesen Stoff ist noch kein externer Spektrenlink hinterlegt.</div>';
   }
 
   function availableReferenceCandidates(){
@@ -883,8 +904,10 @@
     const structureOk=selectedStructure===target().id;
     el.structureStage.classList.toggle("unlocked",classOk);
     el.nameStage.classList.toggle("unlocked",structureOk);
+    el.realSpectraStage.classList.toggle("unlocked",!!state.nameVerified);
     el.spectraWorkbenchStage.classList.toggle("unlocked",!!state.nameVerified);
 
+    renderRealSpectraLinks();
     if(state.nameVerified){
       ensureReferenceCandidate();
       requestAnimationFrame(renderWorkbench);
