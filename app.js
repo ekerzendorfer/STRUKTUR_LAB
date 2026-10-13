@@ -71,7 +71,35 @@
   }
 
   function ensureElementalPanelMarkup(){
-    if(document.getElementById("elementalPanel")) return;
+    const existing=document.getElementById("elementalPanel");
+    if(existing){
+      const head=existing.querySelector(".elemental-head");
+      if(head && !document.getElementById("elementalSkipBtn")){
+        let actions=head.querySelector(".elemental-actions");
+        const runBtn=document.getElementById("elementalRunBtn");
+        if(!actions){
+          actions=document.createElement("div");
+          actions.className="elemental-actions";
+          if(runBtn){ runBtn.parentNode.removeChild(runBtn); actions.appendChild(runBtn); }
+          head.appendChild(actions);
+        }
+        const skip=document.createElement("button");
+        skip.id="elementalSkipBtn";
+        skip.className="ghost compact";
+        skip.type="button";
+        skip.textContent="Ohne Elementaranalyse weiter";
+        actions.appendChild(skip);
+      }
+      if(!document.getElementById("elementalChoiceFeedback")){
+        const feedback=document.createElement("div");
+        feedback.id="elementalChoiceFeedback";
+        feedback.className="feedback neutral";
+        feedback.textContent="Du kannst die Summenformel experimentell erschließen oder bewusst ohne Elementaranalyse direkt mit MS weiterarbeiten.";
+        const results=document.getElementById("elementalResults");
+        existing.insertBefore(feedback,results||null);
+      }
+      return;
+    }
     const formulaBox=document.getElementById("formulaBox");
     const massPanel=formulaBox&&formulaBox.closest(".mass-panel");
     if(!massPanel) return;
@@ -269,13 +297,17 @@
         state=freshState(matchingCase.id,mode);
       }
 
-      if(el.modeLabel) el.modeLabel.textContent="Analytik-Hub";
+      if(el.modeLabel) el.modeLabel.textContent="Analytik-Hub · "+(mode==="expert"?"Expert":"Geführt");
       el.bridgeContext.classList.add("active");
       el.bridgeSampleLabel.textContent=bridgeInput.display_label||(bridgeInput.mode==="solid_screening"?"Unbekannter Feststoff":"GC-Peak");
       if(bridgeInput.mode==="solid_screening"){
-        el.bridgePeakLabel.textContent="Vorwissen aus klassischer Feststoffanalyse";
+        el.bridgePeakLabel.textContent=bridgeInput.screening_skipped
+          ? "Klassische Feststoff-Voranalyse bewusst übersprungen"
+          : "Vorwissen aus klassischer Feststoffanalyse";
         el.bridgeMessage.textContent=mode==="expert"
-          ? "Expertenmodus: Nutze die Vorbefunde, erschließe aus Molmasse und Elementaranalyse die Summenformel und arbeite anschließend mit MS, IR und ¹H-NMR weiter."
+          ? (bridgeInput.screening_skipped
+              ? "Expertenmodus: Keine klassischen Vorbefunde. Entscheide selbst, ob du eine Elementaranalyse nutzt, und entwickle die Struktur aus Molmasse, MS, IR und ¹H-NMR."
+              : "Expertenmodus: Nutze die Vorbefunde und entscheide selbst, ob du die Elementaranalyse zur Summenformelbestimmung benötigst oder direkt mit MS, IR und ¹H-NMR weiterarbeitest.")
           : "Die Voranalyse grenzt funktionelle Gruppen ein, verrät aber keinen Stoffnamen. Nutze diese Befunde zusammen mit M, MS, IR und besonders ¹H-NMR.";
         renderPriorFindings();
       }else{
@@ -284,7 +316,7 @@
         const area=Number.isFinite(Number(peak.area_percent)) ? Number(peak.area_percent).toFixed(1).replace(".",",")+" %" : "–";
         el.bridgePeakLabel.textContent=`${run.peak_id||"Peak"} · tR ${rt} · Fläche ${area}`;
         el.bridgeMessage.textContent=mode==="expert"
-          ? "Expertenmodus: Erschließe zuerst aus Molmasse und Elementaranalyse die Summenformel; danach folgen MS, IR und ¹H-NMR. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen."
+          ? "Expertenmodus: Entscheide selbst, ob du die Elementaranalyse zur Summenformelbestimmung nutzt oder die Spektren ohne vorab bekannte Summenformel interpretierst. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen."
           : "Entwickle aus M, MS, IR und ¹H-NMR eine begründete Strukturhypothese. Die GC-Identität bleibt bis zur späteren Referenzbestätigung offen.";
       }
       updateBridgeControls();
