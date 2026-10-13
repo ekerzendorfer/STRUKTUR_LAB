@@ -668,7 +668,9 @@
     el.formulaBox.textContent=complete
       ? "Summenformel erschlossen: "+t.formula
       : skipped
-        ? "Summenformel nicht vorab bestimmt · Elementaranalyse bewusst übersprungen"
+        ? (state.nameVerified
+            ? "Summenformel aus bestätigter Strukturhypothese: "+t.formula
+            : "Summenformel nicht vorab bestimmt · Elementaranalyse bewusst übersprungen")
         : "Summenformel im Expertenmodus noch nicht verfügbar";
     el.formulaBox.classList.toggle("muted",!complete);
     el.elementalPanel.classList.toggle("elemental-complete",complete);
@@ -741,7 +743,9 @@
       ? target().formula
       : (state.elemental&&state.elemental.factorVerified
           ? target().formula
-          : (state.elemental&&state.elemental.skipped ? "bewusst nicht vorab bestimmt" : ""));
+          : (state.elemental&&state.elemental.skipped
+              ? (state.nameVerified ? target().formula+" · aus Strukturhypothese" : "bewusst nicht vorab bestimmt")
+              : ""));
     const items=[
       ["M",state.notes.massNote],["Summenformel",formulaJournal],["MS",state.notes.msNote],["IR",state.notes.irNote],["¹H-NMR",state.notes.nmrNote],
       ["Stoffklasse",selectedClass||""],["Struktur",selectedStructure?"Strukturhypothese festgelegt":""],["Begründung",state.notes.hypothesisNote]
@@ -1337,7 +1341,11 @@
   async function copyJournal(){const text=journalText();try{await navigator.clipboard.writeText(text);el.copyJournalBtn.textContent="Kopiert ✓";setTimeout(()=>el.copyJournalBtn.textContent="Protokoll kopieren",1200);}catch(_){alert(text);}}
   function journalText(){const c=currentCase(),t=target();const formulaLine=state.mode==="basic"||state.elemental?.factorVerified
     ? `Summenformel: ${t.formula}`
-    : (state.elemental?.skipped ? "Summenformel: vor der Strukturhypothese bewusst nicht bestimmt (Elementaranalyse übersprungen)" : "Summenformel: noch nicht aus Elementaranalyse erschlossen");return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,formulaLine,"",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
+    : (state.elemental?.skipped
+        ? (state.nameVerified
+            ? `Summenformel: ${t.formula} (aus bestätigter Strukturhypothese; Elementaranalyse übersprungen)`
+            : "Summenformel: vor der Strukturhypothese bewusst nicht bestimmt (Elementaranalyse übersprungen)")
+        : "Summenformel: noch nicht aus Elementaranalyse erschlossen");return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,formulaLine,"",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
   function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 
   window.StructurLab={version:VERSION,getState:()=>structuredClone(state)};
