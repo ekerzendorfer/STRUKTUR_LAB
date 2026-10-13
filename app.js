@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "0.2.9";
+  const VERSION = "0.3.0";
   const STORAGE_KEY = "STRUKTUR_LAB_STATE_v0_1";
   const STAGES = ["mass","ms","ir","nmr","hypothesis"];
   const ATOMIC_MASS = {C:12.011,H:1.008,N:14.007,O:15.999,S:32.06,F:18.998,Cl:35.45,Br:79.904,I:126.904};
@@ -84,8 +84,12 @@
             <span class="small-label">Expertenmodus · Summenformel erarbeiten</span>
             <h3>Elementaranalyse</h3>
           </div>
-          <button id="elementalRunBtn" class="secondary compact" type="button">Elementaranalyse durchführen</button>
+          <div class="elemental-actions">
+            <button id="elementalRunBtn" class="secondary compact" type="button">Elementaranalyse durchführen</button>
+            <button id="elementalSkipBtn" class="ghost compact" type="button">Ohne Elementaranalyse weiter</button>
+          </div>
         </div>
+        <div id="elementalChoiceFeedback" class="feedback neutral">Du kannst die Summenformel experimentell erschließen oder bewusst ohne Elementaranalyse direkt mit MS weiterarbeiten.</div>
         <div id="elementalResults" class="elemental-results" hidden>
           <p class="hint">Verbrennungsanalyse: C und H werden als Massenanteile bestimmt; O wird in diesem didaktischen Modell aus der Differenz zu 100&nbsp;% berechnet.</p>
           <div id="elementalValues" class="elemental-values"></div>
@@ -122,7 +126,7 @@
   function bindEls(){
     ["modeSelect","caseSelect","caseLabel","caseIntro","toolboxBtn","toolboxOverlay","toolboxCloseBtn","toolboxContent",
       "stageKicker","stageTitle","stageHelpBtn","massValue","formulaBox","massNote",
-      "elementalPanel","elementalRunBtn","elementalResults","elementalValues","empiricalFormulaInput","checkEmpiricalBtn",
+      "elementalPanel","elementalRunBtn","elementalSkipBtn","elementalChoiceFeedback","elementalResults","elementalValues","empiricalFormulaInput","checkEmpiricalBtn",
       "empiricalFeedback","molecularFormulaStep","empiricalMassInfo","formulaFactorInput","checkFormulaFactorBtn","formulaFactorFeedback",
       "msCanvas","msReadout","msNote",
       "irCanvas","irReadout","irNote","irGroupsToggle","irFingerprintToggle","nmrCanvas","nmrReadout","nmrSignalTable",
@@ -152,6 +156,7 @@
     document.querySelectorAll(".contextual-help").forEach(b=>b.addEventListener("click",()=>openToolbox(b.dataset.topic)));
     el.stageHelpBtn.addEventListener("click",()=>openToolbox(currentStage==="mass"?"elemental":currentStage==="hypothesis"?"nmr":currentStage));
     el.elementalRunBtn.addEventListener("click",runElementalAnalysis);
+    el.elementalSkipBtn.addEventListener("click",skipElementalAnalysis);
     el.checkEmpiricalBtn.addEventListener("click",checkEmpiricalFormula);
     el.checkFormulaFactorBtn.addEventListener("click",checkFormulaFactor);
     ["massNote","msNote","irNote","nmrNote","hypothesisNote"].forEach(k=>el[k].addEventListener("input",()=>{state.notes[k]=el[k].value;save();renderJournal();}));
@@ -227,7 +232,7 @@
         currentStage=old.currentStage||"mass";selectedClass=old.selectedClass||null;selectedStructure=old.selectedStructure||null;referenceUnlocked=!!old.referenceUnlocked;referenceCandidateId=old.referenceCandidateId||null;workbenchMethod=old.workbenchMethod||"ms";workbenchMode=old.workbenchMode||"learn";
         if(typeof state.compareShowOriginal!=="boolean") state.compareShowOriginal=true;
         if(!state.elemental || typeof state.elemental!=="object"){
-          state.elemental={run:false,empiricalVerified:false,factorVerified:false};
+          state.elemental={run:false,empiricalVerified:false,factorVerified:false,skipped:false};
         }
         localStorage.setItem(storageKey(),JSON.stringify(state));
         return;
@@ -308,6 +313,11 @@
   function renderPriorFindings(){
     if(!el.priorFindings) return;
     const findings=bridgeInput&&bridgeInput.prior_findings;
+    if(bridgeInput&&bridgeInput.screening_skipped){
+      el.priorFindings.innerHTML="<strong>Expertenentscheidung</strong><span>Die klassische Feststoff-Voranalyse wurde bewusst übersprungen. Es werden keine Vorbefunde für die Strukturaufklärung übernommen.</span>";
+      el.priorFindings.hidden=false;
+      return;
+    }
     if(!findings||typeof findings!=="object"){el.priorFindings.hidden=true;return;}
     const rows=Object.entries(findings).map(([id,v])=>{
       const strength=typeof v==="string"?v:v&&v.strength;
@@ -325,6 +335,9 @@
   function sendBridgeResult(){
     if(!bridgeMode||!bridgeRun||!window.AnalytikBridge||!state.nameVerified) return;
     const t=target();
+    const eaRun=state.mode==="expert" && !!state.elemental?.run;
+    const eaVerified=state.mode==="expert" && !!state.elemental?.factorVerified;
+    const eaSkipped=state.mode==="expert" && !!state.elemental?.skipped;
     const result={
       result_id:"RES_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
       run_id:bridgeRun.run_id,
@@ -339,11 +352,18 @@
       peak_id:bridgeRun.peak_id||null,
       measurement:{
         methods:state.mode==="expert"
-          ? ["M","ELEMENTAL_ANALYSIS","EI_MS","IR","H1_NMR"]
+          ? ["M"].concat(eaRun?["ELEMENTAL_ANALYSIS"]:[]).concat(["EI_MS","IR","H1_NMR"])
           : ["M","EI_MS","IR","H1_NMR"],
         molar_mass_g_mol:t.mass_measurement?.value??null,
-        formula_source:state.mode==="expert" ? "elemental_analysis_plus_molar_mass" : "provided",
-        elemental_analysis:state.mode==="expert" ? (()=>{
+        prior_screening_skipped:!!(bridgeInput&&bridgeInput.screening_skipped),
+        formula_source:state.mode==="expert"
+          ? (eaVerified
+              ? "elemental_analysis_plus_molar_mass"
+              : (eaSkipped
+                  ? "structure_hypothesis_without_prior_formula"
+                  : (eaRun ? "elemental_analysis_incomplete_before_structure_hypothesis" : "not_determined")))
+          : "provided",
+        elemental_analysis:eaRun ? (()=>{
           const comp=elementalComposition(t.formula);
           const info=empiricalInfo(t.formula);
           const cPct=comp?.percentages?.C||0;
@@ -355,10 +375,10 @@
             carbon_mass_percent:Number(cPct.toFixed(1)),
             hydrogen_mass_percent:Number(hPct.toFixed(1)),
             oxygen_mass_percent_by_difference:(comp?.counts?.O||0)>0 ? Number(Math.max(0,100-cPct-hPct-other).toFixed(1)) : 0,
-            empirical_formula:info?.empirical||null,
-            molecular_formula:t.formula,
-            factor:info?.factor||null,
-            student_verified:!!state.elemental?.factorVerified
+            empirical_formula:state.elemental?.empiricalVerified ? (info?.empirical||null) : null,
+            molecular_formula:eaVerified ? t.formula : null,
+            factor:eaVerified ? (info?.factor||null) : null,
+            student_verified:eaVerified
           };
         })() : null
       },
@@ -377,6 +397,8 @@
         selected_structure_id:selectedStructure,
         entered_name:el.nameInput.value,
         reasoning:state.notes.hypothesisNote||"",
+        elemental_analysis_skipped:eaSkipped,
+        prior_screening_skipped:!!(bridgeInput&&bridgeInput.screening_skipped),
         journal:Object.assign({},state.notes)
       },
       created_at:new Date().toISOString()
@@ -396,7 +418,7 @@
     return ids;
   }
 
-  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn",compareShowOriginal:true,elemental:{run:false,empiricalVerified:false,factorVerified:false}};}
+  function freshState(caseId,mode){return {caseId,mode,unlocked:["mass"],notes:{massNote:"",msNote:"",irNote:"",nmrNote:"",hypothesisNote:""},selectedClass:null,selectedStructure:null,nameVerified:false,currentStage:"mass",referenceUnlocked:false,referenceCandidateId:null,protonAssignments:{},candidateOrder:shuffledCandidateIds(caseId),workbenchMethod:"ms",workbenchMode:"learn",compareShowOriginal:true,elemental:{run:false,empiricalVerified:false,factorVerified:false,skipped:false}};}
   function save(){state.currentStage=currentStage;state.selectedClass=selectedClass;state.selectedStructure=selectedStructure;state.referenceUnlocked=referenceUnlocked;state.referenceCandidateId=referenceCandidateId;state.workbenchMethod=workbenchMethod;state.workbenchMode=workbenchMode;localStorage.setItem(storageKey(),JSON.stringify(state));}
   function resetCase(changed){
     const caseId=el.caseSelect.value, mode=el.modeSelect.value;
@@ -445,8 +467,9 @@
   }
 
   function advance(next){
-    if(currentStage==="mass" && state.mode==="expert" && !(state.elemental&&state.elemental.factorVerified)){
-      el.formulaBox.textContent="Summenformel noch offen · Elementaranalyse vollständig auswerten.";
+    if(currentStage==="mass" && state.mode==="expert" &&
+       !(state.elemental && (state.elemental.factorVerified || state.elemental.skipped))){
+      el.formulaBox.textContent="Summenformel noch offen · Elementaranalyse auswerten oder bewusst überspringen.";
       el.formulaBox.classList.add("muted");
       return;
     }
@@ -532,8 +555,24 @@
   function runElementalAnalysis(){
     if(state.mode!=="expert") return;
     state.elemental.run=true;
+    state.elemental.skipped=false;
     save();
     renderElementalAnalysis();
+  }
+
+  function skipElementalAnalysis(){
+    if(state.mode!=="expert" || state.elemental?.run || state.elemental?.factorVerified) return;
+    if((state.notes.massNote||"").trim().length<3){
+      el.elementalChoiceFeedback.className="feedback warn";
+      el.elementalChoiceFeedback.textContent="Notiere zuerst einen kurzen Befund zur molaren Masse. Danach kannst du bewusst ohne Elementaranalyse weiterarbeiten.";
+      return;
+    }
+    state.elemental.skipped=true;
+    if(!state.unlocked.includes("ms")) state.unlocked.push("ms");
+    save();
+    renderElementalAnalysis();
+    renderJournal();
+    openStage("ms");
   }
 
   function checkEmpiricalFormula(){
@@ -563,6 +602,7 @@
     const entered=Number(el.formulaFactorInput.value);
     if(Number.isInteger(entered) && entered===info.factor){
       state.elemental.factorVerified=true;
+      state.elemental.skipped=false;
       el.formulaFactorFeedback.className="feedback good";
       el.formulaFactorFeedback.textContent="Faktor korrekt. Die Summenformel ist jetzt erschlossen.";
       save();
@@ -581,7 +621,7 @@
     const t=target();
     const expert=state.mode==="expert";
     if(!state.elemental || typeof state.elemental!=="object"){
-      state.elemental={run:false,empiricalVerified:false,factorVerified:false};
+      state.elemental={run:false,empiricalVerified:false,factorVerified:false,skipped:false};
     }
 
     el.elementalPanel.hidden=!expert;
@@ -592,14 +632,28 @@
     }
 
     const complete=!!state.elemental.factorVerified;
+    const skipped=!!state.elemental.skipped;
     el.formulaBox.textContent=complete
       ? "Summenformel erschlossen: "+t.formula
-      : "Summenformel im Expertenmodus noch nicht verfügbar";
+      : skipped
+        ? "Summenformel nicht vorab bestimmt · Elementaranalyse bewusst übersprungen"
+        : "Summenformel im Expertenmodus noch nicht verfügbar";
     el.formulaBox.classList.toggle("muted",!complete);
     el.elementalPanel.classList.toggle("elemental-complete",complete);
+    el.elementalPanel.classList.toggle("elemental-skipped",skipped);
 
-    el.elementalRunBtn.disabled=!!state.elemental.run;
-    el.elementalRunBtn.textContent=state.elemental.run?"Messwerte liegen vor":"Elementaranalyse durchführen";
+    el.elementalRunBtn.disabled=!!state.elemental.run || complete;
+    el.elementalRunBtn.textContent=state.elemental.run
+      ? "Messwerte liegen vor"
+      : (skipped ? "Elementaranalyse nachholen" : "Elementaranalyse durchführen");
+    el.elementalSkipBtn.disabled=!!state.elemental.run || complete || skipped;
+    el.elementalSkipBtn.textContent=skipped ? "Elementaranalyse übersprungen" : "Ohne Elementaranalyse weiter";
+    el.elementalChoiceFeedback.className="feedback "+(complete||skipped?"good":"neutral");
+    el.elementalChoiceFeedback.textContent=complete
+      ? "Summenformel aus Elementaranalyse und Molmasse erschlossen."
+      : skipped
+        ? "Bewusste Expertenentscheidung: MS ist ohne vorab bekannte Summenformel freigegeben."
+        : "Du kannst die Summenformel experimentell erschließen oder bewusst ohne Elementaranalyse direkt mit MS weiterarbeiten.";
     el.elementalResults.hidden=!state.elemental.run;
     if(!state.elemental.run) return;
 
@@ -653,7 +707,9 @@
   function renderJournal(){
     const formulaJournal=state.mode==="basic"
       ? target().formula
-      : (state.elemental&&state.elemental.factorVerified ? target().formula : "");
+      : (state.elemental&&state.elemental.factorVerified
+          ? target().formula
+          : (state.elemental&&state.elemental.skipped ? "bewusst nicht vorab bestimmt" : ""));
     const items=[
       ["M",state.notes.massNote],["Summenformel",formulaJournal],["MS",state.notes.msNote],["IR",state.notes.irNote],["¹H-NMR",state.notes.nmrNote],
       ["Stoffklasse",selectedClass||""],["Struktur",selectedStructure?"Strukturhypothese festgelegt":""],["Begründung",state.notes.hypothesisNote]
@@ -1247,7 +1303,9 @@
   }
 
   async function copyJournal(){const text=journalText();try{await navigator.clipboard.writeText(text);el.copyJournalBtn.textContent="Kopiert ✓";setTimeout(()=>el.copyJournalBtn.textContent="Protokoll kopieren",1200);}catch(_){alert(text);}}
-  function journalText(){const c=currentCase(),t=target();const formulaLine=state.mode==="basic"||state.elemental?.factorVerified?`Summenformel: ${t.formula}`:"Summenformel: noch nicht aus Elementaranalyse erschlossen";return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,formulaLine,"",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
+  function journalText(){const c=currentCase(),t=target();const formulaLine=state.mode==="basic"||state.elemental?.factorVerified
+    ? `Summenformel: ${t.formula}`
+    : (state.elemental?.skipped ? "Summenformel: vor der Strukturhypothese bewusst nicht bestimmt (Elementaranalyse übersprungen)" : "Summenformel: noch nicht aus Elementaranalyse erschlossen");return [`STRUKTUR-LAB v${VERSION}`,c.label_de,`Modus: ${state.mode==="basic"?"Basis":"Experte"}`,`M: ${t.mass_measurement.value} ± ${t.mass_measurement.uncertainty} g/mol`,formulaLine,"",`M-Befund: ${state.notes.massNote||"–"}`,`MS-Befund: ${state.notes.msNote||"–"}`,`IR-Befund: ${state.notes.irNote||"–"}`,`NMR-Befund: ${state.notes.nmrNote||"–"}`,`Stoffklasse: ${selectedClass||"–"}`,`Strukturhypothese: ${selectedStructure||"–"}`,`Begründung: ${state.notes.hypothesisNote||"–"}`,`Name bestätigt: ${state.nameVerified?"ja":"nein"}`].join("\n");}
   function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
 
   window.StructurLab={version:VERSION,getState:()=>structuredClone(state)};
