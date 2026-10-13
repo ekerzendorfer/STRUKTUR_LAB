@@ -1,6 +1,6 @@
 # STRUKTUR-LAB
 
-**Version:** v0.3.0 – optionale Expertenpfade ohne Voranalyse bzw. Elementaranalyse  
+**Version:** v0.3.1 – optionale Expertenpfade ohne Voranalyse bzw. Elementaranalyse  
 **Projekt:** CHEMIE mit KI – Digitales Analytiklabor
 
 Browserbasierte Lernumgebung zur schrittweisen Strukturaufklärung mit molarer Masse, EI-Massenspektrum, IR und ¹H-NMR.
@@ -234,3 +234,26 @@ RESULT-Provenienz:
 - `elemental_analysis_skipped: true` wird zusätzlich in der studentischen Interpretation dokumentiert
 
 Bei Hub-Aufträgen kann außerdem `screening_skipped: true` übergeben werden. In diesem Fall werden keine Vorbefunde aus der klassischen organischen Feststoffanalyse angezeigt.
+
+
+## v0.3.1 – reale Referenzspektren nach gelöster Identität
+
+Nach korrekt bestätigter Struktur und Namenszuordnung wird ein zusätzlicher Bereich **Reale Referenzspektren** freigeschaltet.
+
+Für die vollständig implementierten Struktur-Fälle sind zwei externe Quellen hinterlegt:
+- **AIST SDBS** – reale EI-MS-, FT-IR- und NMR-Spektren, sofern für den Stoff vorhanden
+- **NIST Chemistry WebBook** – reale Referenzdaten, insbesondere EI-MS und IR
+
+Die Links bleiben bis zur korrekten Identifikation vollständig verborgen und können die eigentliche Strukturaufklärung daher nicht vorwegnehmen.
+
+Der Bereich ist als Realitätscheck gedacht: Lernende vergleichen die didaktisch reduzierten Unterrichtsspektren mit experimentellen Spektren und berücksichtigen dabei Messbedingungen, Aggregatzustand, Lösungsmittel, Auflösung und Peakform.
+
+Hinterlegte Stoffe:
+- Ethanol
+- Dimethylether
+- Ethylacetat
+- 1-Butanol
+- 2-Butanol
+- Salicylsäure
+- 3-Hydroxybenzoesäure
+- 4-Hydroxybenzoesäure
